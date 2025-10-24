@@ -1,0 +1,116 @@
+/* Conteneur principal de la liste */
+.user-list-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 1px solid #fce4e8; /* Bordure rose très pâle */
+  width: 1000px; /* Adaptez la largeur à votre conteneur parent */
+  margin-left: -10px;
+  margin-top: 148px;
+}
+
+/* Style général pour une ligne d'utilisateur */
+.user-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #f9f9f9; /* Séparateur très léger */
+}
+
+/* Enlever la bordure du dernier élément */
+.user-card-row:last-child {
+  border-bottom: none;
+}
+
+/* Conteneur pour l'avatar et le texte */
+.user-info-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Wrapper pour l'avatar (gère le cercle vert autour de l'image) */
+.avatar-wrapper {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  padding: 3px;
+  background-color: #e0f7e6; /* Vert très clair */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Texte des détails */
+.details-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.user-meta {
+  font-size: 14px;
+  color: #888;
+}
+
+.user-meta .dot {
+  margin: 0 4px;
+  color: #ccc;
+}
+
+/* Actions (Icônes) */
+.user-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.action-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Couleurs des icônes */
+.action-button.block svg {
+  color: #eb6b9697; /* Rouge/Rose vif */
+}
+
+.action-button.edit svg {
+  color: #eb6b95; /* Vert */
+}
+
+.action-button.delete svg {
+  color: #999; /* Gris */
+}
+
+/* Effet au survol */
+.action-button:hover {
+  opacity: 0.7;
+}

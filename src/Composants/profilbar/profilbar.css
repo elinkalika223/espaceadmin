@@ -1,0 +1,68 @@
+.header-container {
+  margin-left: 220px; /* espace pour sidebar */
+  height: 67px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 30px;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0px;
+  right: 0;
+  z-index: 10;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.notification {
+  position: relative;
+  cursor: pointer;
+}
+
+.notification i {
+  font-size: 20px;
+  color: #333;
+}
+
+.notification .dot {
+  position: absolute;
+  top: 4px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #4caf50;
+  border-radius: 50%;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 35px;
+  height: 35px;
+  background-color: #fde8ef;
+  color: #444;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar i {
+  font-size: 18px;
+}
+
+.username {
+  font-weight: 500;
+  color: #333;
+}

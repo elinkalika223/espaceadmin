@@ -1,0 +1,53 @@
+.dashboard-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: 180px; /* largeur fixe */
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+/* --- Main content --- */
+.main-content {
+  flex: 1;
+  margin-left: 200px; /* même que la largeur de la sidebar */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f9f9f9;
+}
+
+/* --- Header (topbar) --- */
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: #fff;
+  height: 70px; /* hauteur fixe */
+  /* padding: 0 20px; */
+  border-bottom: 1px solid #eee;
+}
+
+/* --- Profil Card --- */
+.user-card {
+  width: 180px;
+  background: #fdeff0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+/* --- Contenu principal --- */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 50px;
+}

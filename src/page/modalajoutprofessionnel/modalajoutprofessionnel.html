@@ -1,0 +1,32 @@
+<div class="modal-overlay" (click)="fermerModal()"></div>
+
+<div class="modal-content">
+  <h2>Nouveau professionnel</h2>
+  <form (ngSubmit)="creerUtilisateur()" enctype="multipart/form-data">
+    <label>Nom :</label>
+    <input type="text" [(ngModel)]="nom" name="nom" required>
+
+    <label>Spécialité :</label>
+    <input type="text" [(ngModel)]="specialite" name="specialite" required>
+
+    <label>Adresse :</label>
+    <input type="text" [(ngModel)]="adresse" name="adresse" required>
+
+    <label>Contact :</label>
+    <input type="text" [(ngModel)]="contact" name="contact" required>
+
+    <label>Mot de passe :</label>
+    <input type="password" [(ngModel)]="motDePasse" name="motDePasse" required>
+
+    <label>Image de profil :</label>
+    <input type="file" (change)="onFileSelected($event)" accept="image/*">
+
+    <div *ngIf="imagePreviewUrl" class="image-preview">
+      <img [src]="imagePreviewUrl" alt="Aperçu">
+    </div>
+
+    <button type="submit">Créer</button>
+  </form>
+
+  <button class="close-btn" (click)="fermerModal()">×</button>
+</div>

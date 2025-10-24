@@ -1,0 +1,124 @@
+/*
+ * Styles basés sur les propriétés du composant parent que vous avez fournies
+ *
+ * position: absolute;
+ * width: 1600px;
+ * height: 195px;
+ * left: 486px;
+ * top: 165px;
+ */
+.card-action-container {
+    /* Propriétés de positionnement fournies */
+    position: fixed;
+    width: 1000px; /* À ajuster si le composant doit être centré ou s'adapter */
+    height: 110px; /* À ajuster pour le contenu réel, si ce n'est pas une carte complète */
+    left: 250px;
+    top: 120px;
+
+    /* Style du conteneur principal (la carte rose clair) */
+    background-color: rgba(252, 228, 232, 0.354); /* Couleur rose très pâle */
+    border-radius: 12px; /* Rayon de bordure visible sur l'image */
+    padding: 30px; /* Espace intérieur pour centrer le contenu horizontalement */
+    display: flex;
+    align-items: center; /* Centrage vertical du contenu */
+    justify-content: center; /* Centrage horizontal du contenu (la barre d'action) */
+    box-sizing: border-box;
+}
+
+/* Conteneur pour aligner la recherche, les filtres et le bouton */
+.search-and-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacement entre les filtres */
+}
+
+/* Style général de la barre d'action */
+.card-action-container > div {
+    display: flex;
+    align-items: center;
+}
+
+/* Champ de recherche */
+.search-input {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0; /* Bordure très légère */
+    padding: 10px 15px;
+    margin-right: 15px; /* Espace entre la recherche et le premier filtre */
+    height: 35px; /* Hauteur ajustée pour correspondre aux filtres */
+    box-sizing: border-box;
+}
+
+.search-input .search-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    color: #a0a0a0; /* Couleur de l'icône de loupe */
+}
+
+.search-input input {
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #333;
+    width: 250px; /* Largeur indicative du champ de recherche */
+}
+
+/* Filtres déroulants */
+.filter-dropdown {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    box-sizing: border-box;
+    height: 55px; /* Hauteur fixe pour alignement */
+}
+
+/* Style spécifique pour les filtres */
+.cpn-filter {
+    background-color: #ffcad45b; /* Rose très clair */
+    color: #333;
+    width: 100px; /* Largeur indicative */
+}
+
+.age-filter {
+    background-color: #ffcad45b; /* Rose légèrement plus clair que CPN */
+    color: #333;
+    width: 160px; /* Largeur indicative */
+}
+
+.filter-dropdown .dropdown-arrow {
+    width: 16px;
+    height: 16px;
+    margin-left: 8px;
+    color: #a0a0a0;
+}
+
+/* Bouton Nouvelle Utilisateurs */
+.new-users-button {
+    background-color: #eb6b95; /* Rose vif */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 15px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-left: 20px; /* Espacement avec le dernier filtre */
+    box-shadow: 0 4px 6px rgba(235, 107, 149, 0.3); /* Ombre légère pour le relief */
+}
+
+.new-users-button .plus-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    color: white;
+}

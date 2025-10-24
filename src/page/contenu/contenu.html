@@ -1,0 +1,45 @@
+<div class="page-container">
+  <!-- CardAction en haut -->
+  <app-cardaction2 *ngIf="showCardAction"></app-cardaction2>
+
+  <!-- Tableau en dessous -->
+  <div class="contenu-container">
+
+    <table class="contenu-table">
+      <thead>
+        <tr>
+          <th>
+            <input type="checkbox" [(ngModel)]="allSelected" (change)="toggleAllSelection()" />
+          </th>
+          <th>Titre</th>
+          <th>Catégorie</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of contenus">
+          <td>
+            <input type="checkbox" [(ngModel)]="c.selected" (change)="toggleSelection(c)" />
+          </td>
+          <td>{{ c.titre }}</td>
+          <td>{{ c.categorie }}</td>
+          <td>{{ c.type }}</td>
+          <td>{{ c.datePublication }}</td>
+          <td>
+            <span [class.actif]="c.statut === 'Actif'" [class.inactif]="c.statut === 'Inactif'">
+              {{ c.statut }}
+            </span>
+          </td>
+          <td class="actions">
+            <i class="fa fa-edit" title="Modifier" (click)="onEdit(c)"></i>
+            <i class="fa fa-trash" title="Supprimer" (click)="onDelete(c)"></i>
+            <i class="fa" [ngClass]="c.statut === 'Actif' ? 'fa-ban' : 'fa-check'" title="Changer le statut" (click)="onBlock(c)"></i>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
