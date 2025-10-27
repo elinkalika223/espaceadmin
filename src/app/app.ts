@@ -4,15 +4,16 @@ import { Menu } from '../Composants/menu/menu';
 import { Profilbar } from '../Composants/profilbar/profilbar';
 import { Dashboard } from '../page/dashboard/dashboard';
 import { Cardaction } from '../Composants/cardaction/cardaction';
-import { Utilisateurs } from '../page/utilisateurs/utilisateurs';
 import { FormsModule } from '@angular/forms';
-import { Modalajoutuser } from '../page/modalajoutuser/modalajoutuser';
-import { Modalajoutprofessionnel } from '../page/modalajoutprofessionnel/modalajoutprofessionnel';
+import { Professionnel } from '../page/professionnel/professionnel';
+import { Utilisateur } from '../page/utilisateur/utilisateur';
+
+
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,FormsModule,Menu,Profilbar,Dashboard,Cardaction,Utilisateurs,Modalajoutuser,Modalajoutprofessionnel],
+  imports: [RouterOutlet,FormsModule,Menu,Profilbar,Dashboard,Professionnel,Utilisateur],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

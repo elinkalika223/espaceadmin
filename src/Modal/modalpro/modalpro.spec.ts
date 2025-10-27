@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Contenu } from './contenu';
+import { Modalpro } from './modalpro';
 
-describe('Contenu', () => {
-  let component: Contenu;
-  let fixture: ComponentFixture<Contenu>;
+describe('Modalpro', () => {
+  let component: Modalpro;
+  let fixture: ComponentFixture<Modalpro>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Contenu]
+      imports: [Modalpro]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Contenu);
+    fixture = TestBed.createComponent(Modalpro);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
