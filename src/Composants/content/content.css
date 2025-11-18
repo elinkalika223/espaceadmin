@@ -1,0 +1,206 @@
+/* ===== STYLES SPÉCIFIQUES AU CONTENU ===== */
+
+/* Onglets */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 8px 8px 0 0;
+  padding: 0 1rem;
+}
+
+.tab {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--primary-color);
+  background-color: #f8fafc;
+}
+
+.tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  background-color: #f0f7ff;
+}
+
+/* Cellules de titre de contenu */
+.content-title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.content-preview {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Badges de langue */
+.language-badge {
+  padding: 0.2rem 0.5rem;
+  background-color: #e2e8f0;
+  color: #4a5568;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Compteur de vues */
+.views-count {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+/* Icônes pour les types */
+.badge i {
+  margin-right: 0.25rem;
+}
+
+/* Badges colorés */
+.badge-primary { background-color: #d1e7ff; color: #0a58ca; }
+.badge-info { background-color: #cff4fc; color: #055160; }
+.badge-success { background-color: #d1f2eb; color: #0f5132; }
+.badge-warning { background-color: #fff3cd; color: #856404; }
+.badge-danger { background-color: #f8d7da; color: #721c24; }
+.badge-secondary { background-color: #e2e3e5; color: #41464b; }
+
+/* Boutons d'action supplémentaires */
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+}
+
+.action-btn {
+  padding: 0.4rem;
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn i {
+  font-size: 0.875rem;
+}
+
+/* État vide */
+.no-data {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.no-data i {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Pied de tableau */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.table-info {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.content-summary {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .tabs {
+    overflow-x: auto;
+    padding: 0 0.5rem;
+  }
+  
+  .tab {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .tab {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .filters {
+    flex-direction: column;
+  }
+  
+  .search-box,
+  .filter-select {
+    min-width: 100%;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .tabs {
+    border-radius: 0;
+  }
+  
+  .tab {
+    min-width: 100px;
+    font-size: 0.8rem;
+  }
+  
+  .table-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}

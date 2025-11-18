@@ -1,0 +1,79 @@
+<div class="stats-cards">
+  <div class="stat-card">
+    <div class="stat-icon" style="background-color: var(--primary-color);">
+      <i class="fas fa-user-injured"></i>
+    </div>
+    <div class="stat-info">
+      <!-- REMPLACER le pipe number par une simple interpolation -->
+      <h3>{{ stats.total }}</h3>
+      <p>Patient(e)s inscrit(e)s</p>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon" style="background-color: var(--secondary-color);">
+      <i class="fas fa-user-md"></i>
+    </div>
+    <div class="stat-info">
+      <h3>86</h3>
+      <p>Professionnels de santé</p>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon" style="background-color: var(--warning-color);">
+      <i class="fas fa-calendar-check"></i>
+    </div>
+    <div class="stat-info">
+      <h3>78%</h3>
+      <p>CPN respectées</p>
+    </div>
+  </div>
+  
+  <div class="stat-card">
+    <div class="stat-icon" style="background-color: var(--danger-color);">
+      <i class="fas fa-syringe"></i>
+    </div>
+    <div class="stat-info">
+      <h3>72%</h3>
+      <p>Vaccinations à jour</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background-color: var(--danger-color);">
+      <i class="fas fa-syringe"></i>
+    </div>
+    <div class="stat-info">
+      <h3>72%</h3>
+      <p>Aletes envoyé</p>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="content-container">
+  <div class="content-header">
+    <h2 class="content-title">Aperçu des activités récentes</h2>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Activité</th>
+          <th>Utilisateur</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let activity of recentActivities">
+          <td>{{ activity.date }}</td>
+          <td>{{ activity.activity }}</td>
+          <td>{{ activity.user }}</td>
+          <td><span [class]="'badge ' + getBadgeClass(activity.status)">{{ activity.status }}</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

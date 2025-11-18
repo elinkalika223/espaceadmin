@@ -1,0 +1,58 @@
+<div class="sidebar">
+  <div class="logo">
+    <h1>
+      <i class="fas fa-baby"></i>
+      <span class="logo-text">KènèyaMuso</span>
+    </h1>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <ul class="nav-menu">
+      <li class="nav-item" [class.active]="activeItem === 'dashboard'">
+        <a routerLink="/dashboard" class="nav-link" (click)="setActiveItem('dashboard')">
+          <i class="fas fa-tachometer-alt"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+      </li>
+      
+      <li class="nav-item" [class.active]="activeItem === 'patients'">
+        <a routerLink="/patients" class="nav-link" (click)="setActiveItem('patients')">
+          <i class="fas fa-user-injured"></i>
+          <span class="nav-text">Patient(e)s</span>
+        </a>
+      </li>
+      
+      <li class="nav-item" [class.active]="activeItem === 'professionals'">
+        <a routerLink="/professionals" class="nav-link" (click)="setActiveItem('professionals')">
+          <i class="fas fa-user-md"></i>
+          <span class="nav-text">Professionnels</span>
+        </a>
+      </li>
+      
+      <li class="nav-item" [class.active]="activeItem === 'content'">
+        <a routerLink="/content" class="nav-link" (click)="setActiveItem('content')">
+          <i class="fas fa-file-alt"></i>
+          <span class="nav-text">Contenu</span>
+        </a>
+      </li>
+      
+      <li class="nav-item" [class.active]="activeItem === 'reports'">
+        <a routerLink="/reports" class="nav-link" (click)="setActiveItem('reports')">
+          <i class="fas fa-chart-bar"></i>
+          <span class="nav-text">Rapports</span>
+        </a>
+      </li>
+    </ul>
+    
+    <div class="nav-divider"></div>
+    
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="#" class="nav-link" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="nav-text">Déconnexion</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

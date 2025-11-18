@@ -1,0 +1,89 @@
+<div class="modal" [class.show]="isOpen" *ngIf="isOpen">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Ajouter une nouvelle patiente</h3>
+      <button class="close-modal" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <!-- SUPPRIMER exportAs ngForm si vous ne l'utilisez pas -->
+      <form>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="patient-firstname">Prénom</label>
+            <input type="text" id="patient-firstname" 
+                   [(ngModel)]="patient.firstName" 
+                   name="firstName"
+                   class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="patient-lastname">Nom</label>
+            <input type="text" id="patient-lastname" 
+                   [(ngModel)]="patient.lastName" 
+                   name="lastName"
+                   class="form-control" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="patient-phone">Téléphone</label>
+            <input type="tel" id="patient-phone" 
+                   [(ngModel)]="patient.phone" 
+                   name="phone"
+                   class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="patient-region">Région</label>
+            <select id="patient-region" 
+                    [(ngModel)]="patient.region" 
+                    name="region"
+                    class="form-control" required>
+              <option value="">Sélectionner une région</option>
+              <option *ngFor="let region of regions" [value]="region">
+                {{ region }}
+              </option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="patient-status">Statut</label>
+            <select id="patient-status" 
+                    [(ngModel)]="patient.status" 
+                    name="status"
+                    class="form-control" required>
+              <option value="">Sélectionner un statut</option>
+              <option *ngFor="let status of statuses" [value]="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="patient-dpa">DPA (Date Prévisionnelle d'Accouchement)</label>
+            <input type="date" id="patient-dpa" 
+                   [(ngModel)]="patient.dpa" 
+                   name="dpa"
+                   class="form-control">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="patient-notes">Notes additionnelles</label>
+          <textarea id="patient-notes" 
+                    [(ngModel)]="patient.notes" 
+                    name="notes"
+                    class="form-control" rows="3"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="closeModal()">Annuler</button>
+      <button class="btn btn-success" 
+              (click)="savePatient()" 
+              [disabled]="!patient.firstName || !patient.lastName || !patient.phone || !patient.region || !patient.status">
+        Enregistrer
+      </button>
+    </div>
+  </div>
+</div>

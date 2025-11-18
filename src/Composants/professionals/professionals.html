@@ -1,0 +1,159 @@
+<div class="content-container">
+  <div class="content-header">
+    <h2 class="content-title">Gestion des Professionnels de Santé</h2>
+    <button class="btn btn-primary" (click)="openAddProfessionalModal()">
+      <i class="fas fa-plus"></i> Ajouter un professionnel
+    </button>
+  </div>
+
+  <!-- Cartes de statistiques -->
+  <div class="stats-cards">
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: var(--primary-color);">
+        <i class="fas fa-user-md"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ getTotalProfessionals() }}</h3>
+        <p>Professionnels total</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: var(--secondary-color);">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ getActiveProfessionals() }}</h3>
+        <p>Professionnels actifs</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: var(--warning-color);">
+        <i class="fas fa-stethoscope"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ gynecologistsCount }}</h3>
+        <p>Gynécologues</p>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: var(--info-color);">
+        <i class="fas fa-baby"></i>
+      </div>
+      <div class="stat-info">
+        <h3>{{ pediatriciansCount }}</h3>
+        <p>Pédiatres</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Filtres et recherche -->
+  <div class="filters">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" 
+             [(ngModel)]="searchTerm" 
+             (input)="onSearchChange()"
+             placeholder="Rechercher un professionnel...">
+    </div>
+    
+    <select class="filter-select" 
+            [(ngModel)]="specialtyFilter" 
+            (change)="onFilterChange()">
+      <option *ngFor="let spec of specialties" [value]="spec.value">
+        {{ spec.label }}
+      </option>
+    </select>
+    
+    <select class="filter-select" 
+            [(ngModel)]="regionFilter" 
+            (change)="onFilterChange()">
+      <option *ngFor="let region of regions" [value]="region.value">
+        {{ region.label }}
+      </option>
+    </select>
+
+    <select class="filter-select" 
+            [(ngModel)]="statusFilter" 
+            (change)="onFilterChange()">
+      <option *ngFor="let status of statuses" [value]="status.value">
+        {{ status.label }}
+      </option>
+    </select>
+  </div>
+  
+  <!-- TABLEAU SANS SCROLL -->
+  <div class="table-container-no-scroll">
+    <table class="full-width-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom & Prénom</th>
+          <th>Spécialité</th>
+          <th>Téléphone</th>
+          <th>Email</th>
+          <th>Région</th>
+          <th>Patients</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let professional of filteredProfessionals">
+          <td class="compact-cell">{{ professional.id }}</td>
+          <td class="compact-cell">
+            <strong>{{ professional.firstName }} {{ professional.lastName }}</strong>
+          </td>
+          <td class="compact-cell">
+            <span [class]="'badge ' + getSpecialtyBadgeClass(professional.specialty)">
+              {{ getSpecialtyText(professional.specialty) }}
+            </span>
+          </td>
+          <td class="compact-cell">{{ professional.phone }}</td>
+          <td class="compact-cell">{{ professional.email || 'N/A' }}</td>
+          <td class="compact-cell">{{ professional.region }}</td>
+          <td class="compact-cell">
+            <span class="patient-count">{{ professional.assignedPatients }}</span>
+          </td>
+          <td class="compact-cell">
+            <span [class]="'badge ' + getStatusBadgeClass(professional.status)">
+              {{ getStatusText(professional.status) }}
+            </span>
+          </td>
+          <td class="compact-cell action-buttons">
+            <button class="action-btn btn-primary" 
+                    (click)="viewProfessional(professional)"
+                    title="Voir les détails">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn btn-warning" 
+                    (click)="editProfessional(professional)"
+                    title="Modifier">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn btn-danger" 
+                    (click)="deleteProfessional(professional)"
+                    title="Supprimer">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredProfessionals.length === 0">
+          <td colspan="9" class="text-center no-data">
+            <i class="fas fa-search fa-2x"></i>
+            <p>Aucun professionnel trouvé</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pied de tableau -->
+  <div class="table-footer" *ngIf="filteredProfessionals.length > 0">
+    <div class="table-info">
+      Affichage de {{ filteredProfessionals.length }} professionnel(s) sur {{ professionals.length }}
+    </div>
+  </div>
+</div>

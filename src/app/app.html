@@ -1,21 +1,19 @@
-
-<div class="dashboard-layout">
-  <!-- MENU LATÉRAL -->
-  <aside class="sidebar">
-    <app-menu></app-menu>
-  </aside>
-
-  <!-- CONTENU PRINCIPAL -->
-  <main class="main-content">
-    <header class="topbar">
-      <div class="user-card">
-        <app-profilbar></app-profilbar>
-      </div>
-    </header>
-
-    <section class="content-area">
+<div class="admin-container">
+  <!-- Sidebar fixe à gauche -->
+  <app-sidebar class="sidebar-fixed"></app-sidebar>
+  
+  <!-- Contenu principal à droite -->
+  <div class="main-content-wrapper">
+    <app-header class="header-fixed"></app-header>
+    
+    <!-- Zone de contenu scrollable -->
+    <main class="content-area">
       <router-outlet></router-outlet>
-    </section>
-  </main>
+    </main>
+  </div>
 </div>
 
+<!-- Modals (en dehors du flux normal) -->
+<app-patient-modal></app-patient-modal>
+<app-pro-modal></app-pro-modal>
+<app-content-modal></app-content-modal>

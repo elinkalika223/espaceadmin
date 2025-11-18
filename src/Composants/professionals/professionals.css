@@ -1,0 +1,180 @@
+/* ===== TABLEAU SANS SCROLL ===== */
+.table-container-no-scroll {
+  width: 100%;
+  overflow: visible; /* Pas de scroll */
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: white;
+}
+
+.full-width-table {
+  width: 100%;
+  table-layout: auto; /* Ajustement automatique */
+  border-collapse: collapse;
+}
+
+/* Cellules compactes */
+.compact-cell {
+  padding: 0.75rem 0.5rem;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* En-têtes */
+.full-width-table th {
+  padding: 1rem 0.5rem;
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #4a5568;
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* ===== ADAPTATION POUR TOUT AFFICHER SANS SCROLL ===== */
+
+/* Réduire les espacements */
+.content-container {
+  padding: 1.5rem;
+}
+
+.stats-cards {
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1rem;
+}
+
+.filters {
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Badges plus compacts */
+.badge {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+/* Boutons d'action plus petits */
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.action-btn {
+  padding: 0.4rem;
+  min-width: 32px;
+  height: 32px;
+}
+
+.action-btn i {
+  font-size: 0.875rem;
+}
+
+/* Compteur de patients plus petit */
+.patient-count {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+}
+
+/* ===== RESPONSIVE SANS SCROLL ===== */
+
+/* Pour les écrans moyens */
+@media (max-width: 1400px) {
+  .compact-cell {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.875rem;
+  }
+  
+  .full-width-table th {
+    padding: 0.75rem 0.4rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Pour les petits écrans */
+@media (max-width: 1200px) {
+  .content-container {
+    padding: 1rem;
+  }
+  
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .compact-cell {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.8rem;
+  }
+  
+  .full-width-table th {
+    padding: 0.6rem 0.3rem;
+    font-size: 0.8rem;
+  }
+  
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+/* Pour les très petits écrans - on garde la lisibilité */
+@media (max-width: 768px) {
+  .table-container-no-scroll {
+    border: none;
+    border-radius: 0;
+  }
+  
+  .full-width-table {
+    font-size: 0.75rem;
+  }
+  
+  .compact-cell {
+    padding: 0.4rem 0.2rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  
+  .action-btn {
+    min-width: 28px;
+    height: 28px;
+  }
+}
+
+/* ===== ÉTAT VIDE ===== */
+.no-data {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.no-data i {
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ===== PIED DE TABLEAU ===== */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.table-info {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}

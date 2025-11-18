@@ -1,0 +1,197 @@
+<div class="modal-backdrop" [class.show]="isOpen" (click)="closeModal()">
+  <div class="modal-container" (click)="onModalClick($event)">
+    
+    <!-- En-tête du modal -->
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="fas fa-user-md"></i>
+        {{ getModalTitle() }}
+      </h3>
+      <button class="close-button" (click)="closeModal()" type="button">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Corps du modal -->
+    <div class="modal-body">
+      <form class="professional-form" (ngSubmit)="saveProfessional()">
+        
+        <!-- Ligne 1 : Prénom et Nom -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName" class="form-label">
+              Prénom <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              [(ngModel)]="professional.firstName"
+              name="firstName"
+              class="form-input"
+              placeholder="Entrez le prénom"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="lastName" class="form-label">
+              Nom <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              [(ngModel)]="professional.lastName"
+              name="lastName"
+              class="form-input"
+              placeholder="Entrez le nom"
+              required
+            >
+          </div>
+        </div>
+
+        <!-- Ligne 2 : Spécialité et Téléphone -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="specialty" class="form-label">
+              Spécialité <span class="required">*</span>
+            </label>
+            <select
+              id="specialty"
+              [(ngModel)]="professional.specialty"
+              name="specialty"
+              class="form-select"
+              required
+            >
+              <option value="">Sélectionnez une spécialité</option>
+              <option *ngFor="let spec of specialties" [value]="spec.value">
+                {{ spec.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="form-label">
+              Téléphone <span class="required">*</span>
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              [(ngModel)]="professional.phone"
+              name="phone"
+              class="form-input"
+              placeholder="Ex: 76 12 34 56"
+              required
+            >
+          </div>
+        </div>
+
+        <!-- Ligne 3 : Email et Région -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="professional.email"
+              name="email"
+              class="form-input"
+              placeholder="email@exemple.com"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="region" class="form-label">
+              Région <span class="required">*</span>
+            </label>
+            <select
+              id="region"
+              [(ngModel)]="professional.region"
+              name="region"
+              class="form-select"
+              required
+            >
+              <option value="">Sélectionnez une région</option>
+              <option *ngFor="let region of regions" [value]="region">
+                {{ region }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Ligne 4 : Adresse et Statut -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="address" class="form-label">Adresse</label>
+            <input
+              type="text"
+              id="address"
+              [(ngModel)]="professional.address"
+              name="address"
+              class="form-input"
+              placeholder="Adresse complète"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="status" class="form-label">
+              Statut <span class="required">*</span>
+            </label>
+            <select
+              id="status"
+              [(ngModel)]="professional.status"
+              name="status"
+              class="form-select"
+              required
+            >
+              <option *ngFor="let status of statuses" [value]="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-group full-width">
+          <label for="notes" class="form-label">Notes additionnelles</label>
+          <textarea
+            id="notes"
+            [(ngModel)]="professional.notes"
+            name="notes"
+            class="form-textarea"
+            placeholder="Informations complémentaires..."
+            rows="3"
+          ></textarea>
+        </div>
+
+        <!-- Champs obligatoires -->
+        <div class="required-fields">
+          <span class="required">*</span> Champs obligatoires
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Pied du modal -->
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="closeModal()"
+      >
+        <i class="fas fa-times"></i>
+        Annuler
+      </button>
+      
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="saveProfessional()"
+        [disabled]="!isFormValid()"
+      >
+        <i class="fas fa-save"></i>
+        {{ isEditing ? 'Modifier' : 'Ajouter' }}
+      </button>
+    </div>
+
+  </div>
+</div>

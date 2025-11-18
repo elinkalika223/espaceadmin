@@ -1,0 +1,348 @@
+.sidebar {
+  width: 270px;
+  height: 100vh;
+  /* background:#e91e6271; */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Logo Section */
+.logo {
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.logo h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #E91E63;
+}
+
+.logo h1 i {
+  font-size: 1.75rem;
+  color: #E91E63;
+}
+
+.logo-subtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 1.5rem 0;
+  /* Suppression de l'effet de défilement Angular */
+  overflow-y: visible;
+}
+
+.nav-menu {
+  list-style: none;
+  padding: 20px;
+  margin: 0;
+}
+
+.nav-item {
+  margin-bottom: 0.25rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  color: #393E46;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.nav-link:hover::before {
+  left: 100%;
+}
+
+.nav-link:hover {
+  color: white;
+  background: #fc9bbb;
+  border-radius: 15px;
+  border-left-color: #E91E63;
+}
+
+.nav-item.active .nav-link {
+  color: white;
+  background: #fc9bbb;
+  border-radius: 15px;
+  border-left-color: #E91E63;
+  font-weight: 600;
+}
+
+.nav-link i {
+  font-size: 1.25rem;
+  width: 24px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover i {
+  transform: scale(1.1);
+}
+
+.nav-item.active .nav-link i {
+  color: #ffffff;
+}
+
+.nav-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* Divider */
+.nav-divider {
+  height: 2px;
+  background: rgba(66, 64, 64, 0.039);
+  /* padding-top: 20px; */
+  margin: 1rem 2.5rem;
+}
+
+/* Sidebar Footer - MODIFIÉ */
+.sidebar-footer {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sidebar-footer:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--secondary-color);
+  font-weight: bold;
+  color: white;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Menu Déconnexion dans la navigation principale - AJOUTÉ */
+.nav-item.logout-item {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.5rem;
+}
+
+.nav-item.logout-item .nav-link {
+  color: rgba(255, 255, 255, 0.7);
+  border-left: 4px solid transparent;
+}
+
+.nav-item.logout-item .nav-link:hover {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  border-left-color: #ff6b6b;
+}
+
+.nav-item.logout-item .nav-link i {
+  color: #ff6b6b;
+}
+
+/* Suppression de la barre de défilement */
+.sidebar-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-nav {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 250px;
+  }
+  
+  .logo h1 {
+    font-size: 1.35rem;
+  }
+  
+  .nav-link {
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    overflow: hidden;
+  }
+  
+  .logo-text,
+  .logo-subtitle,
+  .nav-text,
+  .user-details,
+  .nav-divider {
+    display: none;
+  }
+  
+  .logo {
+    padding: 1.5rem 0.5rem;
+  }
+  
+  .logo h1 {
+    justify-content: center;
+  }
+  
+  .nav-link {
+    justify-content: center;
+    padding: 1rem 0.5rem;
+    border-left: none;
+    border-right: 4px solid transparent;
+  }
+  
+  .nav-item.active .nav-link {
+    border-right-color: var(--secondary-color);
+    border-left: none;
+  }
+  
+  .sidebar-footer {
+    padding: 1rem 0.5rem;
+    justify-content: center;
+  }
+  
+  .user-avatar {
+    width: 35px;
+    height: 35px;
+  }
+  
+  /* Adaptation pour le menu déconnexion en mode mobile */
+  .nav-item.logout-item .nav-link {
+    border-right: 4px solid transparent;
+  }
+  
+  .nav-item.logout-item .nav-link:hover {
+    border-right-color: #ff6b6b;
+  }
+}
+
+/* Animation for mobile toggle */
+.sidebar.mobile-open {
+  transform: translateX(0);
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    width: 280px;
+  }
+  
+  .sidebar.mobile-open .logo-text,
+  .sidebar.mobile-open .logo-subtitle,
+  .sidebar.mobile-open .nav-text,
+  .sidebar.mobile-open .user-details,
+  .sidebar.mobile-open .nav-divider {
+    display: block;
+  }
+  
+  .sidebar.mobile-open .nav-link {
+    justify-content: flex-start;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid transparent;
+    border-right: none;
+  }
+  
+  .sidebar.mobile-open .nav-item.active .nav-link {
+    border-left-color: var(--secondary-color);
+    border-right: none;
+  }
+  
+  .sidebar.mobile-open .logo h1 {
+    justify-content: flex-start;
+  }
+  
+  .sidebar.mobile-open .user-info {
+    justify-content: flex-start;
+  }
+  
+  .sidebar.mobile-open .nav-item.logout-item .nav-link {
+    border-left: 4px solid transparent;
+  }
+  
+  .sidebar.mobile-open .nav-item.logout-item .nav-link:hover {
+    border-left-color: #ff6b6b;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .sidebar {
+    background: linear-gradient(180deg, var(--primary-color) 0%, #1e4a7a 100%);
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar {
+    display: none;
+  }
+}

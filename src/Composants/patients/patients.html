@@ -1,0 +1,83 @@
+<div class="content-container">
+  <div class="content-header">
+    <h2 class="content-title">Gestion des Patient(e)s</h2>
+    <button class="btn btn-primary" (click)="openAddPatientModal()">
+      <i class="fas fa-plus"></i> Ajouter une patiente
+    </button>
+  </div>
+  
+  <div class="filters">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" 
+             [(ngModel)]="searchTerm" 
+             (input)="onSearchChange()"
+             placeholder="Rechercher une patiente...">
+    </div>
+    
+    <select class="filter-select" 
+            [(ngModel)]="statusFilter" 
+            (change)="onFilterChange()">
+      <option value="">Tous les statuts</option>
+      <option value="pregnant">Enceinte</option>
+      <option value="postpartum">Post-partum</option>
+      <option value="child_followup">Suivi enfant</option>
+    </select>
+    
+    <select class="filter-select" 
+            [(ngModel)]="regionFilter" 
+            (change)="onFilterChange()">
+      <option value="">Toutes les régions</option>
+      <option value="Bamako">Bamako</option>
+      <option value="Sikasso">Sikasso</option>
+      <option value="Koulikoro">Koulikoro</option>
+      <option value="Mopti">Mopti</option>
+    </select>
+  </div>
+  
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom & Prénom</th>
+          <th>Téléphone</th>
+          <th>Région</th>
+          <th>Statut</th>
+          <th>DPA</th>
+          <th>Dernière CPN</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let patient of filteredPatients">
+          <td>{{ patient.id }}</td>
+          <td>{{ patient.firstName }} {{ patient.lastName }}</td>
+          <td>{{ patient.phone }}</td>
+          <td>{{ patient.region }}</td>
+          <td>
+            <span [class]="'badge ' + getStatusBadgeClass(patient.status)">
+              {{ getStatusText(patient.status) }}
+            </span>
+          </td>
+          <td>{{ patient.dpa || 'N/A' }}</td>
+          <td>{{ patient.lastCPN || 'N/A' }}</td>
+          <td class="action-buttons">
+            <button class="action-btn btn-primary" (click)="editPatient(patient)">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="action-btn btn-warning" (click)="editPatient(patient)">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn btn-danger" (click)="deletePatient(patient)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredPatients.length === 0">
+          <td colspan="8" class="text-center">Aucune patiente trouvée</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
