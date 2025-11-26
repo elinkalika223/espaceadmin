@@ -1,7 +1,17 @@
 <div class="header">
   <h1 class="page-title">{{ getPageTitle() }}</h1>
   <div class="user-info">
-    <img src="https://i.pravatar.cc/150?img=12" alt="Admin">
-    <span>Admin KènèyaMuso</span>
+    <div class="user-avatar" [title]="getUserDisplayName()">
+      {{ getUserInitials() }}
+    </div>
+    <div class="user-details">
+      <span class="user-name">{{ getUserDisplayName() }}</span>
+      <span class="user-role" *ngIf="currentUser">{{ getRoleLabel(currentUser.role) }}</span>
+    </div>
+    <div class="user-actions">
+      <button class="btn-logout" (click)="logout()" title="Déconnexion">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
   </div>
 </div>

@@ -1,9 +1,15 @@
 <div class="content-container">
   <div class="content-header">
     <h2 class="content-title">Gestion des Professionnels de Santé</h2>
-    <button class="btn btn-primary" (click)="openAddProfessionalModal()">
+    <button class="btn btn-primary" (click)="openAddProfessionalModal()" [disabled]="isLoading">
       <i class="fas fa-plus"></i> Ajouter un professionnel
     </button>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div class="error-message" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMessage }}</span>
   </div>
 
   <!-- Cartes de statistiques -->
@@ -61,7 +67,8 @@
     
     <select class="filter-select" 
             [(ngModel)]="specialtyFilter" 
-            (change)="onFilterChange()">
+            (change)="onFilterChange()"
+            aria-label="Filtrer par spécialité">
       <option *ngFor="let spec of specialties" [value]="spec.value">
         {{ spec.label }}
       </option>
@@ -69,7 +76,8 @@
     
     <select class="filter-select" 
             [(ngModel)]="regionFilter" 
-            (change)="onFilterChange()">
+            (change)="onFilterChange()"
+            aria-label="Filtrer par région">
       <option *ngFor="let region of regions" [value]="region.value">
         {{ region.label }}
       </option>
@@ -77,7 +85,8 @@
 
     <select class="filter-select" 
             [(ngModel)]="statusFilter" 
-            (change)="onFilterChange()">
+            (change)="onFilterChange()"
+            aria-label="Filtrer par statut">
       <option *ngFor="let status of statuses" [value]="status.value">
         {{ status.label }}
       </option>
@@ -140,10 +149,15 @@
             </button>
           </td>
         </tr>
-        <tr *ngIf="filteredProfessionals.length === 0">
+        <tr *ngIf="filteredProfessionals.length === 0 && !isLoading">
           <td colspan="9" class="text-center no-data">
             <i class="fas fa-search fa-2x"></i>
             <p>Aucun professionnel trouvé</p>
+          </td>
+        </tr>
+        <tr *ngIf="isLoading">
+          <td colspan="9" class="text-center">
+            <i class="fas fa-spinner fa-spin"></i> Chargement...
           </td>
         </tr>
       </tbody>

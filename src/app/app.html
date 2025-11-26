@@ -1,4 +1,4 @@
-<div class="admin-container">
+<div class="admin-container" *ngIf="showSidebarAndHeader">
   <!-- Sidebar fixe à gauche -->
   <app-sidebar class="sidebar-fixed"></app-sidebar>
   
@@ -11,6 +11,11 @@
       <router-outlet></router-outlet>
     </main>
   </div>
+</div>
+
+<!-- Page de login sans sidebar et header -->
+<div *ngIf="!showSidebarAndHeader">
+  <router-outlet></router-outlet>
 </div>
 
 <!-- Modals (en dehors du flux normal) -->

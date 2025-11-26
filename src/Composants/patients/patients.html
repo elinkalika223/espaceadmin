@@ -5,6 +5,16 @@
       <i class="fas fa-plus"></i> Ajouter une patiente
     </button>
   </div>
+
+  <!-- Message d'erreur -->
+  <div class="error-message" *ngIf="errorMessage" style="background-color: #fee; border: 1px solid #fcc; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+    <i class="fas fa-exclamation-circle" style="color: #c33; margin-right: 10px;"></i>
+    <span style="color: #c33; font-weight: bold;">{{ errorMessage }}</span>
+    <br>
+    <button class="btn btn-primary mt-2" (click)="loadPatientes()" style="margin-top: 10px;">
+      <i class="fas fa-refresh"></i> Réessayer
+    </button>
+  </div>
   
   <div class="filters">
     <div class="search-box">
@@ -17,7 +27,8 @@
     
     <select class="filter-select" 
             [(ngModel)]="statusFilter" 
-            (change)="onFilterChange()">
+            (change)="onFilterChange()"
+            aria-label="Filtrer par statut">
       <option value="">Tous les statuts</option>
       <option value="pregnant">Enceinte</option>
       <option value="postpartum">Post-partum</option>
@@ -26,7 +37,8 @@
     
     <select class="filter-select" 
             [(ngModel)]="regionFilter" 
-            (change)="onFilterChange()">
+            (change)="onFilterChange()"
+            aria-label="Filtrer par région">
       <option value="">Toutes les régions</option>
       <option value="Bamako">Bamako</option>
       <option value="Sikasso">Sikasso</option>
@@ -52,30 +64,49 @@
       <tbody>
         <tr *ngFor="let patient of filteredPatients">
           <td>{{ patient.id }}</td>
-          <td>{{ patient.firstName }} {{ patient.lastName }}</td>
-          <td>{{ patient.phone }}</td>
-          <td>{{ patient.region }}</td>
+          <td>{{ patient.prenom }} {{ patient.nom }}</td>
+          <td>{{ patient.telephone }}</td>
+          <td>{{ patient.adresse || 'N/A' }}</td>
           <td>
-            <span [class]="'badge ' + getStatusBadgeClass(patient.status)">
-              {{ getStatusText(patient.status) }}
+            <span [class]="'badge ' + getStatusBadgeClass(getPatientStatus(patient))">
+              {{ getStatusText(getPatientStatus(patient)) }}
             </span>
           </td>
-          <td>{{ patient.dpa || 'N/A' }}</td>
-          <td>{{ patient.lastCPN || 'N/A' }}</td>
+          <td>{{ getDPA(patient) }}</td>
+          <td>{{ getLastCPN(patient) }}</td>
           <td class="action-buttons">
-            <button class="action-btn btn-primary" (click)="editPatient(patient)">
+            <button class="action-btn btn-primary" (click)="viewPatient(patient)" title="Voir les détails">
               <i class="fas fa-eye"></i>
             </button>
-            <button class="action-btn btn-warning" (click)="editPatient(patient)">
+            <button class="action-btn btn-warning" (click)="editPatient(patient)" title="Modifier">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="action-btn btn-danger" (click)="deletePatient(patient)">
+            <button class="action-btn btn-danger" (click)="deletePatient(patient)" title="Supprimer">
               <i class="fas fa-trash"></i>
             </button>
           </td>
         </tr>
-        <tr *ngIf="filteredPatients.length === 0">
-          <td colspan="8" class="text-center">Aucune patiente trouvée</td>
+        <tr *ngIf="filteredPatients.length === 0 && !isLoading && !errorMessage">
+          <td colspan="8" class="text-center">
+            <p>Aucune patiente trouvée</p>
+            <p class="text-muted" *ngIf="searchTerm || statusFilter || regionFilter">
+              Essayez de modifier vos critères de recherche
+            </p>
+          </td>
+        </tr>
+        <tr *ngIf="isLoading">
+          <td colspan="8" class="text-center">
+            <i class="fas fa-spinner fa-spin"></i> Chargement des patientes...
+          </td>
+        </tr>
+        <tr *ngIf="errorMessage && !isLoading">
+          <td colspan="8" class="text-center error-message">
+            <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+            <br>
+            <button class="btn btn-primary mt-2" (click)="loadPatientes()">
+              <i class="fas fa-refresh"></i> Réessayer
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,10 +13,17 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 export class Sidebar implements OnInit {
   activeItem: string = 'dashboard';
   isMobileMenuOpen: boolean = false;
+  isAdmin: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    public authService: AuthService
+  ) {}
 
   ngOnInit() {
+    // Vérifier si l'utilisateur est admin
+    this.isAdmin = this.authService.isAdmin();
+
     // Version sans filter RxJS - plus simple
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
@@ -38,6 +46,8 @@ export class Sidebar implements OnInit {
       this.activeItem = 'content';
     } else if (url.includes('/reports')) {
       this.activeItem = 'reports';
+    } else if (url.includes('/admins')) {
+      this.activeItem = 'admins';
     } else {
       this.activeItem = 'dashboard';
     }

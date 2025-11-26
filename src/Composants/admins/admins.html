@@ -1,0 +1,193 @@
+<div class="content-container">
+  <div class="content-header">
+    <h2 class="content-title">Gestion des Administrateurs</h2>
+    <button class="btn btn-primary" (click)="openAddModal()" [disabled]="isLoading">
+      <i class="fas fa-plus"></i> Ajouter un administrateur
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div class="error-message" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div class="success-message" *ngIf="successMessage">
+    <i class="fas fa-check-circle"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <!-- Recherche -->
+  <div class="filters">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearchChange()"
+        placeholder="Rechercher un administrateur...">
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom & Prénom</th>
+          <th>Téléphone</th>
+          <th>Rôle</th>
+          <th>Date de création</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let admin of filteredAdmins">
+          <td>{{ admin.id }}</td>
+          <td>{{ admin.prenom }} {{ admin.nom }}</td>
+          <td>{{ admin.telephone }}</td>
+          <td>
+            <span class="badge badge-primary">{{ admin.role }}</span>
+          </td>
+          <td>{{ formatDate(admin.dateCreation) }}</td>
+          <td>
+            <span [class]="'badge ' + (admin.actif ? 'badge-success' : 'badge-danger')">
+              {{ admin.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td class="action-buttons">
+            <button class="action-btn btn-warning" (click)="openEditModal(admin)" title="Modifier">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button 
+              class="action-btn btn-danger" 
+              (click)="deleteAdmin(admin)" 
+              title="Supprimer"
+              [disabled]="admin.id === authService.getCurrentUser()?.id">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredAdmins.length === 0 && !isLoading">
+          <td colspan="7" class="text-center">Aucun administrateur trouvé</td>
+        </tr>
+        <tr *ngIf="isLoading">
+          <td colspan="7" class="text-center">
+            <i class="fas fa-spinner fa-spin"></i> Chargement...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal d'ajout/modification -->
+<div class="modal" [class.show]="showAddModal" *ngIf="showAddModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>{{ isEditing ? 'Modifier l\'administrateur' : 'Ajouter un administrateur' }}</h3>
+      <button class="close-modal" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nom">Nom *</label>
+            <input 
+              type="text" 
+              id="nom"
+              [(ngModel)]="formData.nom"
+              name="nom"
+              class="form-control" 
+              required>
+          </div>
+          <div class="form-group">
+            <label for="prenom">Prénom *</label>
+            <input 
+              type="text" 
+              id="prenom"
+              [(ngModel)]="formData.prenom"
+              name="prenom"
+              class="form-control" 
+              required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="telephone">Téléphone *</label>
+          <input 
+            type="tel" 
+            id="telephone"
+            [(ngModel)]="formData.telephone"
+            name="telephone"
+            class="form-control" 
+            placeholder="+223XXXXXXXX"
+            required>
+        </div>
+
+        <div class="form-group" *ngIf="!isEditing">
+          <label for="motDePasse">Mot de passe *</label>
+          <input 
+            type="password" 
+            id="motDePasse"
+            [(ngModel)]="formData.motDePasse"
+            name="motDePasse"
+            class="form-control" 
+            required
+            minlength="6">
+          <small class="form-text">Minimum 6 caractères</small>
+        </div>
+
+        <div class="form-group" *ngIf="!isEditing">
+          <label for="confirmerMotDePasse">Confirmer le mot de passe *</label>
+          <input 
+            type="password" 
+            id="confirmerMotDePasse"
+            [(ngModel)]="formData.confirmerMotDePasse"
+            name="confirmerMotDePasse"
+            class="form-control" 
+            required>
+        </div>
+
+        <div class="form-group" *ngIf="isEditing">
+          <label for="nouveauMotDePasse">Nouveau mot de passe (optionnel)</label>
+          <input 
+            type="password" 
+            id="nouveauMotDePasse"
+            [(ngModel)]="formData.motDePasse"
+            name="motDePasse"
+            class="form-control"
+            minlength="6">
+          <small class="form-text">Laissez vide pour ne pas changer le mot de passe</small>
+        </div>
+
+        <div class="form-group" *ngIf="isEditing && formData.motDePasse">
+          <label for="confirmerNouveauMotDePasse">Confirmer le nouveau mot de passe</label>
+          <input 
+            type="password" 
+            id="confirmerNouveauMotDePasse"
+            [(ngModel)]="formData.confirmerMotDePasse"
+            name="confirmerMotDePasse"
+            class="form-control">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" (click)="closeModal()" [disabled]="isLoading">Annuler</button>
+      <button 
+        class="btn btn-success" 
+        (click)="onSubmit()" 
+        [disabled]="isLoading || !formData.nom || !formData.prenom || !formData.telephone">
+        <span *ngIf="!isLoading">
+          {{ isEditing ? 'Modifier' : 'Créer' }}
+        </span>
+        <span *ngIf="isLoading">
+          <i class="fas fa-spinner fa-spin"></i> En cours...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Content } from '../../model/contentmodel';
-import { DataService } from '../../service/dataservice';
+import { ConseilService } from '../../service/conseil.service';
 import { ModalService } from '../../service/modalservice';
 
 interface SelectOption {
@@ -13,7 +13,7 @@ interface SelectOption {
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecimalPipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './content.html',
   styleUrls: ['./content.css']
 })
@@ -58,14 +58,18 @@ export class ContentC implements OnInit {
 
   categories: SelectOption[] = [
     { value: 'all', label: 'Toutes les catégories' },
-    { value: 'Grossesse', label: 'Grossesse' },
-    { value: 'Exercices prénatals', label: 'Exercices prénatals' },
-    { value: 'Nutrition', label: 'Nutrition' },
-    { value: 'Santé infantile', label: 'Santé infantile' }
+    { value: 'NUTRITION', label: 'Nutrition' },
+    { value: 'HYGIENE', label: 'Hygiène' },
+    { value: 'ALLAITEMENT', label: 'Allaitement' },
+    { value: 'PREVENTION', label: 'Prévention' },
+    { value: 'SANTE_GENERALE', label: 'Santé générale' }
   ];
 
+  isLoading = false;
+  errorMessage = '';
+
   constructor(
-    private dataService: DataService,
+    private conseilService: ConseilService,
     private modalService: ModalService
   ) {}
 
@@ -74,13 +78,30 @@ export class ContentC implements OnInit {
   }
 
   loadContents() {
-    this.dataService.getContents().subscribe({
-      next: (contents: Content[]) => {
-        this.contents = contents;
-        this.filteredContents = contents;
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.conseilService.getAllConseils().subscribe({
+      next: (conseils) => {
+        this.isLoading = false;
+        // Convertir les conseils en Content
+        this.contents = conseils.map(conseil => 
+          this.conseilService.conseilToContent(conseil)
+        );
+        this.filteredContents = [...this.contents];
+        console.log(`✅ ${this.contents.length} conseil(s) chargé(s)`);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des contenus:', error);
+        this.isLoading = false;
+        this.errorMessage = error.message || 'Erreur lors du chargement des conseils';
+        console.error('❌ Erreur lors du chargement des conseils:', error);
+        
+        // Message d'erreur spécifique
+        if (error.status === 403) {
+          this.errorMessage = 'Accès refusé. Seuls les administrateurs et médecins peuvent accéder à cette ressource.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+        }
       }
     });
   }
@@ -117,12 +138,24 @@ export class ContentC implements OnInit {
     this.filteredContents = this.contents.filter((content: Content) => {
       const matchesSearch = !this.searchTerm || 
         content.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        content.author.toLowerCase().includes(this.searchTerm.toLowerCase());
+        (content.author && content.author.toLowerCase().includes(this.searchTerm.toLowerCase()));
 
       const matchesType = this.selectedType === 'all' || content.type === this.selectedType;
       const matchesStatus = this.selectedStatus === 'all' || content.status === this.selectedStatus;
       const matchesLanguage = this.selectedLanguage === 'all' || content.language === this.selectedLanguage;
-      const matchesCategory = this.selectedCategory === 'all' || content.category === this.selectedCategory;
+      
+      // Mapper la catégorie pour la comparaison
+      const categoryMap: { [key: string]: string } = {
+        'NUTRITION': 'Nutrition',
+        'HYGIENE': 'Santé infantile',
+        'ALLAITEMENT': 'Grossesse',
+        'PREVENTION': 'Santé infantile',
+        'SANTE_GENERALE': 'Grossesse'
+      };
+      const mappedCategory = categoryMap[this.selectedCategory] || this.selectedCategory;
+      const matchesCategory = this.selectedCategory === 'all' || 
+        content.category === mappedCategory || 
+        content.category === this.selectedCategory;
       
       // Filtre par tab active
       const matchesTab = this.activeTab === 'all' || 
@@ -234,30 +267,52 @@ export class ContentC implements OnInit {
     // Implémentez la logique d'édition
   }
 
+  /**
+   * Publie un conseil (active le conseil)
+   */
   publishContent(content: Content): void {
     if (confirm(`Voulez-vous publier "${content.title}" ?`)) {
-      console.log('Publication du contenu:', content);
-      // Implémentez la logique de publication
-      // this.dataService.publishContent(content.id).subscribe(...);
+      const conseilId = parseInt(content.id);
+      const request = this.conseilService.contentToConseilRequest(content);
+      
+      // Pour publier, on met actif à true via la mise à jour
+      // Note: Le backend n'a pas de champ "actif" dans ConseilRequest, 
+      // il faudrait peut-être ajouter un endpoint spécifique
+      this.conseilService.updateConseil(conseilId, request).subscribe({
+        next: (conseil) => {
+          console.log('✅ Conseil publié avec succès');
+          this.loadContents();
+        },
+        error: (error) => {
+          console.error('❌ Erreur lors de la publication:', error);
+          alert('Erreur lors de la publication: ' + (error.message || 'Erreur inconnue'));
+        }
+      });
     }
   }
 
+  /**
+   * Archive un conseil (désactive le conseil)
+   */
   archiveContent(content: Content): void {
     if (confirm(`Voulez-vous archiver "${content.title}" ?`)) {
-      console.log('Archivage du contenu:', content);
-      // Implémentez la logique d'archivage
-      // this.dataService.archiveContent(content.id).subscribe(...);
+      // Pour archiver, on devrait mettre actif à false
+      // Pour l'instant, on utilise la suppression ou on peut créer un endpoint spécifique
+      alert('Fonctionnalité d\'archivage à implémenter dans le backend');
     }
   }
 
   deleteContent(content: Content): void {
     if (confirm(`Êtes-vous sûr de vouloir supprimer "${content.title}" ?`)) {
-      this.dataService.deleteContent(content.id).subscribe({
+      const conseilId = parseInt(content.id);
+      this.conseilService.deleteConseil(conseilId).subscribe({
         next: () => {
+          console.log('✅ Conseil supprimé avec succès');
           this.loadContents();
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
+          console.error('❌ Erreur lors de la suppression:', error);
+          alert('Erreur lors de la suppression: ' + (error.message || 'Erreur inconnue'));
         }
       });
     }

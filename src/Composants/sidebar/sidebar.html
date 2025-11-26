@@ -42,6 +42,13 @@
           <span class="nav-text">Rapports</span>
         </a>
       </li>
+      
+      <li class="nav-item" [class.active]="activeItem === 'admins'" *ngIf="isAdmin">
+        <a routerLink="/admins" class="nav-link" (click)="setActiveItem('admins')">
+          <i class="fas fa-user-shield"></i>
+          <span class="nav-text">Administrateurs</span>
+        </a>
+      </li>
     </ul>
     
     <div class="nav-divider"></div>

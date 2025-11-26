@@ -1,58 +1,108 @@
-<div class="stats-cards">
+<div class="stats-cards" *ngIf="!isLoading && !errorMessage">
   <div class="stat-card">
     <div class="stat-icon" style="background-color: var(--primary-color);">
       <i class="fas fa-user-injured"></i>
     </div>
     <div class="stat-info">
-      <!-- REMPLACER le pipe number par une simple interpolation -->
-      <h3>{{ stats.total }}</h3>
+      <h3>{{ totalPatientes }}</h3>
       <p>Patient(e)s inscrit(e)s</p>
     </div>
   </div>
   
-  <div class="stat-card">
+  <div class="stat-card" *ngIf="isAdmin">
     <div class="stat-icon" style="background-color: var(--secondary-color);">
       <i class="fas fa-user-md"></i>
     </div>
     <div class="stat-info">
-      <h3>86</h3>
+      <h3>{{ totalProfessionnels }}</h3>
       <p>Professionnels de santé</p>
     </div>
   </div>
   
-  <div class="stat-card">
+  <div class="stat-card" *ngIf="isAdmin">
     <div class="stat-icon" style="background-color: var(--warning-color);">
       <i class="fas fa-calendar-check"></i>
     </div>
     <div class="stat-info">
-      <h3>78%</h3>
+      <h3>{{ cpnRespectRate }}%</h3>
       <p>CPN respectées</p>
     </div>
   </div>
   
-  <div class="stat-card">
+  <div class="stat-card" *ngIf="isAdmin">
     <div class="stat-icon" style="background-color: var(--danger-color);">
       <i class="fas fa-syringe"></i>
     </div>
     <div class="stat-info">
-      <h3>72%</h3>
+      <h3>{{ vaccinationRate }}%</h3>
       <p>Vaccinations à jour</p>
     </div>
   </div>
-  <div class="stat-card">
-    <div class="stat-icon" style="background-color: var(--danger-color);">
-      <i class="fas fa-syringe"></i>
+  
+  <div class="stat-card" *ngIf="isAdmin">
+    <div class="stat-icon" style="background-color: var(--primary-color);">
+      <i class="fas fa-bell"></i>
     </div>
     <div class="stat-info">
-      <h3>72%</h3>
-      <p>Aletes envoyé</p>
+      <h3>{{ totalRappelsEnvoyes }}</h3>
+      <p>Alertes envoyées</p>
+    </div>
+  </div>
+  
+  <!-- Stats pour médecin -->
+  <div class="stat-card" *ngIf="!isAdmin && medecinStats">
+    <div class="stat-icon" style="background-color: var(--secondary-color);">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ medecinStats.suivisTermines }}</h3>
+      <p>Suivis terminés</p>
+    </div>
+  </div>
+  
+  <div class="stat-card" *ngIf="!isAdmin && medecinStats">
+    <div class="stat-icon" style="background-color: var(--warning-color);">
+      <i class="fas fa-clock"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ medecinStats.suivisEnCours }}</h3>
+      <p>Suivis en cours</p>
+    </div>
+  </div>
+  
+  <div class="stat-card" *ngIf="!isAdmin && medecinStats">
+    <div class="stat-icon" style="background-color: var(--primary-color);">
+      <i class="fas fa-bell"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ medecinStats.rappelsActifs }}</h3>
+      <p>Rappels actifs</p>
+    </div>
+  </div>
+  
+  <div class="stat-card" *ngIf="!isAdmin && medecinStats">
+    <div class="stat-icon" style="background-color: var(--danger-color);">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ medecinStats.alertesActives }}</h3>
+      <p>Alertes actives</p>
     </div>
   </div>
 </div>
 
 
 
-<div class="content-container">
+<div *ngIf="isLoading" class="loading-container">
+  <p>Chargement des statistiques...</p>
+</div>
+
+<div *ngIf="errorMessage" class="error-container">
+  <p class="error-message">{{ errorMessage }}</p>
+  <button (click)="ngOnInit()">Réessayer</button>
+</div>
+
+<div class="content-container" *ngIf="!isLoading && !errorMessage">
   <div class="content-header">
     <h2 class="content-title">Aperçu des activités récentes</h2>
   </div>

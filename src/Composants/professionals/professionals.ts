@@ -1,9 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { Professional } from '../../model/professionnelmodel';
+import { ProfessionalService, ProfessionnelSante } from '../../service/professional.service';
 import { ModalService } from '../../service/modalservice';
-import { DataService } from '../../service/dataservice';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+export interface Professional {
+  id: string;
+  firstName: string;
+  lastName: string;
+  specialty: string;
+  phone: string;
+  email?: string;
+  region: string;
+  address?: string;
+  assignedPatients: number;
+  status: 'active' | 'inactive' | 'on_leave';
+  notes?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 @Component({
   selector: 'app-professionals',
@@ -19,6 +34,8 @@ export class Professionals implements OnInit{
   specialtyFilter: string = '';
   regionFilter: string = '';
   statusFilter: string = '';
+  isLoading = false;
+  errorMessage = '';
 
   // Statistiques calculées
   gynecologistsCount: number = 0;
@@ -26,15 +43,14 @@ export class Professionals implements OnInit{
   midwivesCount: number = 0;
   nursesCount: number = 0;
   nutritionistsCount: number = 0;
+  generalistsCount: number = 0;
 
   // Options pour les filtres
   specialties = [
     { value: '', label: 'Toutes les spécialités' },
-    { value: 'gynecologist', label: 'Gynécologue' },
-    { value: 'pediatrician', label: 'Pédiatre' },
-    { value: 'midwife', label: 'Sage-femme' },
-    { value: 'nurse', label: 'Infirmier(ère)' },
-    { value: 'nutritionist', label: 'Nutritionniste' }
+    { value: 'GYNECOLOGUE', label: 'Gynécologue' },
+    { value: 'PEDIATRE', label: 'Pédiatre' },
+    { value: 'GENERALISTE', label: 'Généraliste' }
   ];
 
   regions = [
@@ -58,7 +74,7 @@ export class Professionals implements OnInit{
   ];
 
   constructor(
-    private dataService: DataService,
+    private professionalService: ProfessionalService,
     private modalService: ModalService
   ) {}
 
@@ -67,26 +83,66 @@ export class Professionals implements OnInit{
   }
 
   loadProfessionals() {
-    this.dataService.getProfessionals().subscribe({
-      next: (professionals: Professional[]) => {
-        this.professionals = professionals;
-        this.filteredProfessionals = [...professionals];
-        this.calculateStatistics(); // ← CALCULER LES STATS
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.professionalService.getAllProfessionals().subscribe({
+      next: (professionnels: ProfessionnelSante[]) => {
+        this.isLoading = false;
+        // Mapper les données backend vers le modèle frontend
+        this.professionals = professionnels.map(p => this.mapToProfessional(p));
+        this.filteredProfessionals = [...this.professionals];
+        this.calculateStatistics();
       },
       error: (error: any) => {
+        this.isLoading = false;
+        this.errorMessage = error.message || 'Erreur lors du chargement des professionnels';
         console.error('Erreur lors du chargement des professionnels:', error);
-        alert('Erreur lors du chargement des professionnels');
       }
     });
   }
 
-  // NOUVELLE MÉTHODE : Calculer les statistiques
+  /**
+   * Mappe ProfessionnelSante (backend) vers Professional (frontend)
+   */
+  private mapToProfessional(prof: ProfessionnelSante): Professional {
+    return {
+      id: prof.id.toString(),
+      firstName: prof.prenom,
+      lastName: prof.nom,
+      specialty: this.mapSpecialty(prof.specialite),
+      phone: prof.telephone,
+      email: undefined, // Le backend n'a pas d'email dans Utilisateur
+      region: '', // Le backend n'a pas de région dans Utilisateur
+      address: undefined,
+      assignedPatients: prof.patientes?.length || 0,
+      status: prof.actif ? 'active' : 'inactive',
+      createdAt: prof.dateCreation ? new Date(prof.dateCreation) : undefined,
+      updatedAt: prof.dateModification ? new Date(prof.dateModification) : undefined
+    };
+  }
+
+  /**
+   * Mappe la spécialité backend vers frontend
+   */
+  private mapSpecialty(specialite: string): string {
+    const mapping: { [key: string]: string } = {
+      'GYNECOLOGUE': 'GYNECOLOGUE',
+      'PEDIATRE': 'PEDIATRE',
+      'GENERALISTE': 'GENERALISTE'
+    };
+    return mapping[specialite] || specialite;
+  }
+
+  // Calculer les statistiques
   calculateStatistics() {
-    this.gynecologistsCount = this.professionals.filter(p => p.specialty === 'gynecologist').length;
-    this.pediatriciansCount = this.professionals.filter(p => p.specialty === 'pediatrician').length;
-    this.midwivesCount = this.professionals.filter(p => p.specialty === 'midwife').length;
-    this.nursesCount = this.professionals.filter(p => p.specialty === 'nurse').length;
-    this.nutritionistsCount = this.professionals.filter(p => p.specialty === 'nutritionist').length;
+    this.gynecologistsCount = this.professionals.filter(p => p.specialty === 'GYNECOLOGUE').length;
+    this.pediatriciansCount = this.professionals.filter(p => p.specialty === 'PEDIATRE').length;
+    this.generalistsCount = this.professionals.filter(p => p.specialty === 'GENERALISTE').length;
+    // Les autres spécialités ne sont pas dans le backend
+    this.midwivesCount = 0;
+    this.nursesCount = 0;
+    this.nutritionistsCount = 0;
   }
 
   openAddProfessionalModal() {
@@ -110,7 +166,8 @@ export class Professionals implements OnInit{
         (professional.email && professional.email.toLowerCase().includes(this.searchTerm.toLowerCase()));
       
       const matchesSpecialty = !this.specialtyFilter || professional.specialty === this.specialtyFilter;
-      const matchesRegion = !this.regionFilter || professional.region === this.regionFilter;
+      // Pour la région, on ne filtre pas car le backend n'a pas ce champ
+      const matchesRegion = !this.regionFilter || true; // Toujours vrai pour l'instant
       const matchesStatus = !this.statusFilter || professional.status === this.statusFilter;
 
       return matchesSearch && matchesSpecialty && matchesRegion && matchesStatus;
@@ -119,11 +176,9 @@ export class Professionals implements OnInit{
 
   getSpecialtyText(specialty: string): string {
     const specialtyMap: { [key: string]: string } = {
-      'gynecologist': 'Gynécologue',
-      'pediatrician': 'Pédiatre',
-      'midwife': 'Sage-femme',
-      'nurse': 'Infirmier(ère)',
-      'nutritionist': 'Nutritionniste'
+      'GYNECOLOGUE': 'Gynécologue',
+      'PEDIATRE': 'Pédiatre',
+      'GENERALISTE': 'Généraliste'
     };
     return specialtyMap[specialty] || specialty;
   }
@@ -169,11 +224,10 @@ export class Professionals implements OnInit{
 
   deleteProfessional(professional: Professional) {
     if (confirm(`Êtes-vous sûr de vouloir supprimer ${professional.firstName} ${professional.lastName} ?`)) {
-      // Simulation de suppression locale
-      this.professionals = this.professionals.filter(p => p.id !== professional.id);
-      this.filteredProfessionals = this.filteredProfessionals.filter(p => p.id !== professional.id);
-      this.calculateStatistics(); // ← METTRE À JOUR LES STATS
-      alert('Professionnel supprimé avec succès');
+      // TODO: Implémenter la suppression via l'API quand l'endpoint sera disponible
+      // Pour l'instant, l'endpoint DELETE n'existe pas dans le backend
+      alert('Fonctionnalité de suppression à implémenter. L\'endpoint DELETE n\'est pas encore disponible dans le backend.');
+      console.log('Suppression du professionnel:', professional.id);
     }
   }
 

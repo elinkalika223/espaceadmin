@@ -6,6 +6,15 @@
     </button>
   </div>
 
+  <!-- Message d'erreur -->
+  <div class="error-message" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMessage }}</span>
+    <button class="btn btn-sm btn-primary ml-2" (click)="loadContents()">
+      <i class="fas fa-refresh"></i> Réessayer
+    </button>
+  </div>
+
   <!-- Cartes de statistiques -->
   <div class="stats-cards">
     <div class="stat-card">
@@ -192,10 +201,18 @@
             </button>
           </td>
         </tr>
-        <tr *ngIf="filteredContents.length === 0">
+        <tr *ngIf="filteredContents.length === 0 && !isLoading && !errorMessage">
           <td colspan="9" class="text-center no-data">
             <i class="fas fa-file-alt fa-2x"></i>
             <p>Aucun contenu trouvé</p>
+            <p class="text-muted" *ngIf="searchTerm || selectedCategory !== 'all' || selectedStatus !== 'all'">
+              Essayez de modifier vos critères de recherche
+            </p>
+          </td>
+        </tr>
+        <tr *ngIf="isLoading">
+          <td colspan="9" class="text-center">
+            <i class="fas fa-spinner fa-spin"></i> Chargement des conseils...
           </td>
         </tr>
       </tbody>
