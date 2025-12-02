@@ -1,174 +1,194 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Chart, registerables } from 'chart.js';
+import { ReportsService, ReportsStatsDto } from '../../service/reports.service';
 
 Chart.register(...registerables);
 
-interface StatCard {
-  title: string;
-  value: number;
-  icon: string;
-  color: string;
-  trend: number; // Pourcentage de changement
-  subtitle: string;
+interface KpiData {
+  totalPatientes: number;
+  totalConsultations: number;
+  totalAccouchements: number;
+  tauxSuivi: number;
 }
 
-interface PatientData {
-  id: number;
+interface MonthlyData {
   nom: string;
-  prenom: string;
-  age: number;
-  dateInscription: Date;
-  statut: 'prenatale' | 'postnatale';
-  nombreConsultations: number;
-  prochainRDV?: Date;
-}
-
-interface ConsultationData {
-  date: Date;
-  patiente: string;
-  medecin: string;
-  type: string;
-  statut: 'completee' | 'annulee' | 'en_attente';
+  cpnRealisees: number;
+  cpnManquees: number;
+  cponRealisees: number;
+  cponManquees: number;
+  tauxReussite: string;
 }
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './reports.html',
   styleUrl: './reports.css',
 })
-export class Reports implements OnInit {
-  // Statistiques principales
-  statsCards: StatCard[] = [];
-  
-  // Données des patientes
-  patientes: PatientData[] = [];
-  
-  // Consultations récentes
-  consultations: ConsultationData[] = [];
-  
-  // Filtres
-  selectedPeriod: string = 'month';
-  selectedStatut: string = 'all';
-  
+export class Reports implements OnInit, OnDestroy {
+  // KPIs
+  kpiData: KpiData = {
+    totalPatientes: 450,
+    totalConsultations: 120,
+    totalAccouchements: 20,
+    tauxSuivi: 70
+  };
+
+  // Données mensuelles
+  monthlyData: MonthlyData[] = [];
+
+  // Sélecteur d'année
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = [];
+
   // Charts
-  private patientsChart: any;
-  private consultationsChart: any;
-  private statusChart: any;
+  private repartitionChart: any;
+  private trimestreChart: any;
+
+  // Loading state
+  isLoading: boolean = true;
+  error: string | null = null;
+
+  // Store real data
+  private reportsData: ReportsStatsDto | null = null;
+
+  constructor(private reportsService: ReportsService) {
+    // Générer les années disponibles (3 dernières années + année actuelle)
+    const currentYear = new Date().getFullYear();
+    for (let i = 0; i <= 3; i++) {
+      this.availableYears.push(currentYear - i);
+    }
+    this.availableYears.reverse();
+  }
 
   ngOnInit(): void {
-    this.generateSimulatedData();
-    setTimeout(() => {
-      this.initializeCharts();
-    }, 100);
+    this.loadRealData();
+  }
+
+  loadRealData(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    this.reportsService.getReportsStats('year', this.selectedYear).subscribe({
+      next: (data: ReportsStatsDto) => {
+        console.log('📊 Données reçues du backend pour l\'année', this.selectedYear, ':', data);
+        this.reportsData = data;
+        this.mapDataToComponent(data);
+        this.isLoading = false;
+        setTimeout(() => {
+          this.initializeCharts();
+        }, 100);
+      },
+      error: (err) => {
+        console.error('❌ Erreur lors du chargement des données:', err);
+        this.error = 'Erreur lors du chargement des données. Veuillez réessayer.';
+        this.isLoading = false;
+        // En cas d'erreur, utiliser les données simulées comme fallback
+        this.generateSimulatedData();
+        setTimeout(() => {
+          this.initializeCharts();
+        }, 100);
+      }
+    });
+  }
+
+  mapDataToComponent(data: ReportsStatsDto): void {
+    // Mapper les KPIs
+    this.kpiData = {
+      totalPatientes: data.totalPatientes || 0,
+      totalConsultations: data.totalConsultations || 0,
+      totalAccouchements: data.totalAccouchements || 0,
+      tauxSuivi: Math.round(data.tauxSuivi || 0)
+    };
+
+    // Utiliser les données mensuelles du backend
+    if (data.monthlyDetailData && data.monthlyDetailData.length > 0) {
+      console.log('📊 Données mensuelles reçues du backend:', data.monthlyDetailData);
+      this.monthlyData = data.monthlyDetailData.map(month => ({
+        nom: month.nom,
+        cpnRealisees: month.cpnRealisees || 0,
+        cpnManquees: month.cpnManquees || 0,
+        cponRealisees: month.cponRealisees || 0,
+        cponManquees: month.cponManquees || 0,
+        tauxReussite: month.tauxReussite || '0,0'
+      }));
+      console.log('✅ Données mensuelles mappées:', this.monthlyData);
+    } else {
+      console.warn('⚠️ Aucune donnée mensuelle trouvée, utilisation des données par défaut');
+      // Fallback si les données ne sont pas disponibles
+      this.generateMonthlyData();
+    }
+  }
+
+  generateMonthlyData(): void {
+    const months = [
+      'Janvier', 'Fevrier', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Decembre'
+    ];
+
+    // Données par défaut si le backend ne fournit pas de données
+    this.monthlyData = months.map(month => ({
+      nom: month,
+      cpnRealisees: 0,
+      cpnManquees: 0,
+      cponRealisees: 0,
+      cponManquees: 0,
+      tauxReussite: '0,0'
+    }));
   }
 
   generateSimulatedData(): void {
-    // Générer les cartes de statistiques
-    this.statsCards = [
-      {
-        title: 'Total Patientes',
-        value: 342,
-        icon: '👥',
-        color: '#E91E63',
-        trend: 12.5,
-        subtitle: '+43 ce mois'
-      },
-      {
-        title: 'Consultations',
-        value: 1247,
-        icon: '📋',
-        color: '#2196F3',
-        trend: 8.3,
-        subtitle: '+98 ce mois'
-      },
-      {
-        title: 'Accouchements',
-        value: 87,
-        icon: '👶',
-        color: '#4CAF50',
-        trend: 5.2,
-        subtitle: '+4 cette semaine'
-      },
-      {
-        title: 'Taux Suivi',
-        value: 94.8,
-        icon: '📈',
-        color: '#FF9800',
-        trend: 2.1,
-        subtitle: '+2.1% ce mois'
-      }
-    ];
+    // Utiliser les données de l'image comme données par défaut
+    this.kpiData = {
+      totalPatientes: 450,
+      totalConsultations: 120,
+      totalAccouchements: 20,
+      tauxSuivi: 70
+    };
 
-    // Générer des patientes simulées
-    const noms = ['Diallo', 'Traoré', 'Keita', 'Coulibaly', 'Touré', 'Koné', 'Sangaré', 'Sidibé'];
-    const prenoms = ['Aminata', 'Fatoumata', 'Mariam', 'Aïssata', 'Kadiatou', 'Safiatou', 'Maimouna', 'Salimata'];
-    
-    for (let i = 1; i <= 50; i++) {
-      const dateInscription = new Date();
-      dateInscription.setDate(dateInscription.getDate() - Math.floor(Math.random() * 180));
-      
-      const prochainRDV = new Date();
-      prochainRDV.setDate(prochainRDV.getDate() + Math.floor(Math.random() * 30));
-      
-      this.patientes.push({
-        id: i,
-        nom: noms[Math.floor(Math.random() * noms.length)],
-        prenom: prenoms[Math.floor(Math.random() * prenoms.length)],
-        age: 20 + Math.floor(Math.random() * 20),
-        dateInscription: dateInscription,
-        statut: Math.random() > 0.3 ? 'prenatale' : 'postnatale',
-        nombreConsultations: Math.floor(Math.random() * 15) + 1,
-        prochainRDV: Math.random() > 0.3 ? prochainRDV : undefined
-      });
-    }
-
-    // Générer des consultations simulées
-    const medecins = ['Dr. Simpara', 'Dr. Sanogo', 'Dr. Kouyaté'];
-    const types = ['CPN', 'CPON', 'Urgence', 'Suivi', 'Vaccination'];
-    
-    for (let i = 0; i < 20; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-      
-      const patiente = this.patientes[Math.floor(Math.random() * this.patientes.length)];
-      
-      this.consultations.push({
-        date: date,
-        patiente: `${patiente.prenom} ${patiente.nom}`,
-        medecin: medecins[Math.floor(Math.random() * medecins.length)],
-        type: types[Math.floor(Math.random() * types.length)],
-        statut: Math.random() > 0.1 ? 'completee' : (Math.random() > 0.5 ? 'en_attente' : 'annulee')
-      });
-    }
-
-    // Trier les consultations par date (plus récente en premier)
-    this.consultations.sort((a, b) => b.date.getTime() - a.date.getTime());
+    this.generateMonthlyData();
   }
 
   initializeCharts(): void {
-    this.createPatientsChart();
-    this.createConsultationsChart();
-    this.createStatusChart();
+    this.createRepartitionChart();
+    this.createTrimestreChart();
   }
 
-  createPatientsChart(): void {
-    const ctx = document.getElementById('patientsChart') as HTMLCanvasElement;
-    if (!ctx) return;
+  createRepartitionChart(): void {
+    const ctx = document.getElementById('repartitionChart') as HTMLCanvasElement;
+    if (!ctx || !this.reportsData) return;
 
-    this.patientsChart = new Chart(ctx, {
-      type: 'line',
+    // Détruire le graphique existant s'il existe
+    if (this.repartitionChart) {
+      this.repartitionChart.destroy();
+    }
+
+    // Utiliser les données réelles du backend
+    const repartition = this.reportsData.repartitionCpnCpon;
+    const data = [
+      repartition?.cpnRealisees || 0,
+      repartition?.cponRealisees || 0,
+      repartition?.cpnManquees || 0,
+      repartition?.cponManquees || 0
+    ];
+
+    this.repartitionChart = new Chart(ctx, {
+      type: 'doughnut',
       data: {
-        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+        labels: ['CPN Réalisées', 'CPON Réalisées', 'CPN Manquées', 'CPON Manquées'],
         datasets: [{
-          label: 'Nouvelles Patientes',
-          data: [25, 32, 28, 35, 42, 38, 45, 48, 43, 50, 47, 52],
-          borderColor: '#E91E63',
-          backgroundColor: 'rgba(233, 30, 99, 0.1)',
-          tension: 0.4,
-          fill: true
+          data: data,
+          backgroundColor: [
+            '#90EE90', // Light green
+            '#87CEEB', // Light blue
+            '#9370DB', // Purple
+            '#FF6B6B'  // Light red
+          ],
+          borderWidth: 0
         }]
       },
       options: {
@@ -176,46 +196,70 @@ export class Reports implements OnInit {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: true,
-            position: 'top',
+            display: false // On utilise notre propre légende
           },
-          title: {
-            display: true,
-            text: 'Évolution des Inscriptions (2024)'
+          tooltip: {
+            enabled: true
           }
         },
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
+        cutout: '60%'
       }
     });
   }
 
-  createConsultationsChart(): void {
-    const ctx = document.getElementById('consultationsChart') as HTMLCanvasElement;
-    if (!ctx) return;
+  createTrimestreChart(): void {
+    const ctx = document.getElementById('trimestreChart') as HTMLCanvasElement;
+    if (!ctx || !this.reportsData) return;
 
-    this.consultationsChart = new Chart(ctx, {
+    // Détruire le graphique existant s'il existe
+    if (this.trimestreChart) {
+      this.trimestreChart.destroy();
+    }
+
+    // Utiliser les données réelles du backend
+    const trimestreData = this.reportsData.cpnParTrimestre;
+    let cpnRealisees = [0, 0, 0];
+    let cpnManquees = [0, 0, 0];
+    let labels = ['1er Trimestre', '2ème Trimestre', '3ème Trimestre'];
+
+    if (trimestreData && trimestreData.length > 0) {
+      trimestreData.forEach((trim, index) => {
+        if (index < 3) {
+          cpnRealisees[index] = trim.cpnRealisees || 0;
+          cpnManquees[index] = trim.cpnManquees || 0;
+          if (trim.trimestre) {
+            labels[index] = trim.trimestre;
+          }
+        }
+      });
+    }
+
+    // Calculer le max pour l'axe Y
+    const maxValue = Math.max(
+      ...cpnRealisees,
+      ...cpnManquees,
+      100 // Minimum pour avoir une échelle visible
+    );
+    const yMax = Math.ceil(maxValue / 100) * 100; // Arrondir à la centaine supérieure
+
+    this.trimestreChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+        labels: labels,
         datasets: [
           {
-            label: 'CPN',
-            data: [12, 15, 10, 18, 14, 8, 5],
-            backgroundColor: '#2196F3'
+            label: 'CPN Réalisées',
+            data: cpnRealisees,
+            backgroundColor: '#90EE90',
+            borderColor: '#90EE90',
+            borderWidth: 0
           },
           {
-            label: 'CPON',
-            data: [8, 10, 7, 12, 9, 5, 3],
-            backgroundColor: '#4CAF50'
-          },
-          {
-            label: 'Urgences',
-            data: [3, 2, 4, 1, 3, 2, 1],
-            backgroundColor: '#FF5722'
+            label: 'CPN Manquées',
+            data: cpnManquees,
+            backgroundColor: '#FF6B6B',
+            borderColor: '#FF6B6B',
+            borderWidth: 0
           }
         ]
       },
@@ -224,94 +268,42 @@ export class Reports implements OnInit {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: true,
-            position: 'top',
+            display: false // On utilise notre propre légende
           },
-          title: {
-            display: true,
-            text: 'Consultations par Type (Cette Semaine)'
+          tooltip: {
+            enabled: true
           }
         },
         scales: {
           x: {
-            stacked: false
+            stacked: false,
+            grid: {
+              display: false
+            }
           },
           y: {
-            stacked: false,
-            beginAtZero: true
+            beginAtZero: true,
+            max: yMax > 0 ? yMax : 500,
+            ticks: {
+              stepSize: yMax > 0 ? Math.max(50, Math.floor(yMax / 5)) : 100,
+              callback: function(value) {
+                return value.toString();
+              }
+            },
+            grid: {
+              color: '#f0f0f0'
+            }
           }
         }
       }
     });
   }
 
-  createStatusChart(): void {
-    const ctx = document.getElementById('statusChart') as HTMLCanvasElement;
-    if (!ctx) return;
-
-    this.statusChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: ['Prénatale', 'Postnatale', 'Suivi Terminé'],
-        datasets: [{
-          data: [234, 87, 21],
-          backgroundColor: [
-            '#E91E63',
-            '#4CAF50',
-            '#9E9E9E'
-          ],
-          borderWidth: 2,
-          borderColor: '#fff'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-          },
-          title: {
-            display: true,
-            text: 'Répartition par Statut'
-          }
-        }
-      }
-    });
-  }
-
-  getStatutClass(statut: string): string {
-    switch (statut) {
-      case 'prenatale': return 'badge-prenatal';
-      case 'postnatale': return 'badge-postnatal';
-      default: return 'badge-default';
-    }
-  }
-
-  getConsultationStatutClass(statut: string): string {
-    switch (statut) {
-      case 'completee': return 'badge-success';
-      case 'annulee': return 'badge-danger';
-      case 'en_attente': return 'badge-warning';
-      default: return 'badge-default';
-    }
-  }
-
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  }
-
-  getTrendIcon(trend: number): string {
-    return trend >= 0 ? '↗' : '↘';
-  }
-
-  getTrendClass(trend: number): string {
-    return trend >= 0 ? 'trend-up' : 'trend-down';
+  filterByYear(year: any): void {
+    this.selectedYear = typeof year === 'string' ? parseInt(year, 10) : year;
+    console.log('Filtering by year:', this.selectedYear);
+    // Recharger les données pour l'année sélectionnée
+    this.loadRealData();
   }
 
   exportReport(format: string): void {
@@ -319,22 +311,9 @@ export class Reports implements OnInit {
     alert(`Export en cours au format ${format.toUpperCase()}...\nCette fonctionnalité sera bientôt disponible !`);
   }
 
-  filterByPeriod(period: string): void {
-    this.selectedPeriod = period;
-    console.log('Filtering by period:', period);
-    // Ici, vous pouvez recharger les données selon la période
-  }
-
-  filterByStatut(statut: string): void {
-    this.selectedStatut = statut;
-    console.log('Filtering by statut:', statut);
-    // Ici, vous pouvez filtrer les patientes selon le statut
-  }
-
   ngOnDestroy(): void {
     // Nettoyer les charts
-    if (this.patientsChart) this.patientsChart.destroy();
-    if (this.consultationsChart) this.consultationsChart.destroy();
-    if (this.statusChart) this.statusChart.destroy();
+    if (this.repartitionChart) this.repartitionChart.destroy();
+    if (this.trimestreChart) this.trimestreChart.destroy();
   }
 }

@@ -115,6 +115,18 @@ export class ConseilService {
   }
 
   /**
+   * Upload une vidéo
+   */
+  uploadVideo(file: File): Observable<{ fileName: string; fileUrl: string; originalFileName: string }> {
+    return this.apiService.uploadFile<ApiResponse<{ fileName: string; fileUrl: string; originalFileName: string }>>(
+      '/conseils/upload/video',
+      file
+    ).pipe(
+      map(response => response.data)
+    );
+  }
+
+  /**
    * Convertit un Conseil (backend) en Content (frontend)
    */
   conseilToContent(conseil: Conseil): Content {

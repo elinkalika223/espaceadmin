@@ -1,0 +1,184 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onBackdropClick($event)">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- En-tête du modal -->
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-plus-circle"></i>
+        {{ modalType === 'edit' ? 'Modifier le contenu' : 'Créer un nouveau contenu' }}
+      </h2>
+      <button class="close-btn" (click)="closeModal()" [disabled]="isSubmitting || isUploading" title="Fermer">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Corps du modal -->
+    <div class="modal-body">
+      <!-- Messages -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
+      </div>
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      </div>
+
+      <!-- Formulaire -->
+      <form (ngSubmit)="onSubmit()" #contentForm="ngForm">
+        <!-- Type de contenu -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-file-alt"></i> Type de contenu *
+          </label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input 
+                type="radio" 
+                name="typeContenu" 
+                [(ngModel)]="formData.typeContenu" 
+                value="article"
+                [disabled]="isSubmitting || isUploading">
+              <span>
+                <i class="fas fa-newspaper"></i> Article
+              </span>
+            </label>
+            <label class="radio-option">
+              <input 
+                type="radio" 
+                name="typeContenu" 
+                [(ngModel)]="formData.typeContenu" 
+                value="video"
+                [disabled]="isSubmitting || isUploading">
+              <span>
+                <i class="fas fa-video"></i> Vidéo
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Titre -->
+        <div class="form-group">
+          <label for="titre">
+            <i class="fas fa-heading"></i> Titre *
+          </label>
+          <input 
+            type="text" 
+            id="titre" 
+            name="titre"
+            [(ngModel)]="formData.titre" 
+            placeholder="Ex: Conseils pour une grossesse saine"
+            required
+            [disabled]="isSubmitting || isUploading">
+        </div>
+
+        <!-- Contenu (pour articles) -->
+        <div class="form-group" *ngIf="formData.typeContenu === 'article'">
+          <label for="contenu">
+            <i class="fas fa-align-left"></i> Contenu *
+          </label>
+          <textarea 
+            id="contenu" 
+            name="contenu"
+            [(ngModel)]="formData.contenu" 
+            rows="8"
+            placeholder="Rédigez votre article ici..."
+            required
+            [disabled]="isSubmitting || isUploading"></textarea>
+        </div>
+
+        <!-- Upload vidéo -->
+        <div class="form-group" *ngIf="formData.typeContenu === 'video'">
+          <label>
+            <i class="fas fa-upload"></i> Vidéo *
+          </label>
+          <div class="upload-section">
+            <div class="upload-option">
+              <label class="upload-btn">
+                <input 
+                  type="file" 
+                  accept="video/*"
+                  (change)="onFileSelected($event)"
+                  [disabled]="isSubmitting || isUploading">
+                <i class="fas fa-cloud-upload-alt"></i>
+                {{ formData.videoFile ? formData.videoFile.name : 'Choisir un fichier vidéo' }}
+              </label>
+              <small class="help-text">
+                Formats acceptés: MP4, AVI, MKV (max 100MB)
+              </small>
+            </div>
+            <div class="divider">OU</div>
+            <div class="upload-option">
+              <input 
+                type="text" 
+                [(ngModel)]="formData.videoUrl" 
+                name="videoUrl"
+                placeholder="URL de la vidéo (YouTube, Vimeo, etc.)"
+                [disabled]="isSubmitting || isUploading">
+              <small class="help-text">
+                Ex: https://www.youtube.com/watch?v=...
+              </small>
+            </div>
+          </div>
+          <div class="upload-progress" *ngIf="isUploading">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+            </div>
+            <span>Upload en cours... {{ uploadProgress }}%</span>
+          </div>
+        </div>
+
+        <!-- Catégorie -->
+        <div class="form-group">
+          <label for="categorie">
+            <i class="fas fa-tags"></i> Catégorie *
+          </label>
+          <select 
+            id="categorie" 
+            name="categorie"
+            [(ngModel)]="formData.categorie" 
+            required
+            [disabled]="isSubmitting || isUploading">
+            <option *ngFor="let cat of categories" [value]="cat.value">
+              {{ cat.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Cible -->
+        <div class="form-group">
+          <label for="cible">
+            <i class="fas fa-users"></i> Public cible *
+          </label>
+          <select 
+            id="cible" 
+            name="cible"
+            [(ngModel)]="formData.cible" 
+            required
+            [disabled]="isSubmitting || isUploading">
+            <option *ngFor="let cible of cibles" [value]="cible.value">
+              {{ cible.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="closeModal()"
+            [disabled]="isSubmitting || isUploading">
+            <i class="fas fa-times"></i> Annuler
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="isSubmitting || isUploading || !contentForm.valid">
+            <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting || isUploading"></i>
+            <i class="fas fa-save" *ngIf="!isSubmitting && !isUploading"></i>
+            {{ isSubmitting || isUploading ? 'Enregistrement...' : (modalType === 'edit' ? 'Modifier' : 'Créer') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

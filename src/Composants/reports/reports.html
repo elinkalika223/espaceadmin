@@ -1,249 +1,131 @@
 <div class="reports-container">
-  <!-- En-tête -->
-  <div class="reports-header">
-    <div class="header-content">
-      <h1>📊 Rapports et Statistiques</h1>
-      <p class="subtitle">Vue d'ensemble de l'activité de Keneya Muso</p>
-    </div>
-    <div class="header-actions">
-      <select class="filter-select" [(ngModel)]="selectedPeriod" (change)="filterByPeriod(selectedPeriod)">
-        <option value="week">Cette semaine</option>
-        <option value="month" selected>Ce mois</option>
-        <option value="quarter">Ce trimestre</option>
-        <option value="year">Cette année</option>
-      </select>
-      <button class="btn-export" (click)="exportReport('pdf')">
-        📄 Exporter PDF
-      </button>
-      <button class="btn-export" (click)="exportReport('excel')">
-        📊 Exporter Excel
-      </button>
+  <!-- Indicateur de chargement -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Chargement des données...</p>
     </div>
   </div>
 
-  <!-- Cartes de statistiques -->
-  <div class="stats-grid">
-    <div class="stat-card" *ngFor="let stat of statsCards" [style.border-left-color]="stat.color">
-      <div class="stat-icon" [style.background-color]="stat.color + '20'">
-        <span>{{ stat.icon }}</span>
+  <!-- Message d'erreur -->
+  <div *ngIf="error && !isLoading" class="error-message">
+    <p>⚠️ {{ error }}</p>
+  </div>
+
+  <!-- En-tête avec titre et actions -->
+  <div class="reports-header">
+    <h2 class="section-title">Rapports CPN/CPON</h2>
+    <div class="header-actions">
+      <button class="btn-export-red" (click)="exportReport('excel')">
+        <i class="fas fa-file-alt"></i>
+        Exporter
+      </button>
+      <div class="year-selector">
+        <select 
+          [(ngModel)]="selectedYear" 
+          (change)="filterByYear(selectedYear)" 
+          class="year-select"
+          title="Sélectionner une année">
+          <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+        </select>
+        <i class="fas fa-chevron-down"></i>
       </div>
-      <div class="stat-content">
-        <h3 class="stat-title">{{ stat.title }}</h3>
-        <div class="stat-value">{{ stat.value }}{{ stat.title === 'Taux Suivi' ? '%' : '' }}</div>
-        <div class="stat-footer">
-          <span class="stat-subtitle">{{ stat.subtitle }}</span>
-          <span class="stat-trend" [ngClass]="getTrendClass(stat.trend)">
-            {{ getTrendIcon(stat.trend) }} {{ stat.trend }}%
-          </span>
-        </div>
-      </div>
+    </div>
+  </div>
+
+  <!-- Cartes KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">TOTAL PATIENTES</div>
+      <div class="kpi-value kpi-green">{{ kpiData.totalPatientes }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">CONSULTATIONS</div>
+      <div class="kpi-value kpi-pink">{{ kpiData.totalConsultations }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ACCOUCHEMENTS</div>
+      <div class="kpi-value kpi-green">{{ kpiData.totalAccouchements }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">TAUX SUIVI</div>
+      <div class="kpi-value kpi-pink">{{ kpiData.tauxSuivi }}%</div>
     </div>
   </div>
 
   <!-- Graphiques -->
   <div class="charts-grid">
+    <!-- Graphique Donut - Répartition CPN/CPON -->
     <div class="chart-card">
-      <div class="chart-header">
-        <h3>📈 Évolution des Patientes</h3>
-      </div>
+      <h3 class="chart-title">Répartition CPN/CPON</h3>
       <div class="chart-container">
-        <canvas id="patientsChart"></canvas>
+        <canvas id="repartitionChart"></canvas>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-color legend-green"></span>
+          <span class="legend-text">CPN Réalisées</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-blue"></span>
+          <span class="legend-text">CPON Réalisées</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-purple"></span>
+          <span class="legend-text">CPN Manquées</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-red"></span>
+          <span class="legend-text">CPON Manquées</span>
+        </div>
       </div>
     </div>
 
+    <!-- Graphique Barres - CPN par trimestre -->
     <div class="chart-card">
-      <div class="chart-header">
-        <h3>📋 Consultations Hebdomadaires</h3>
-      </div>
+      <h3 class="chart-title">CPN par trimestre de grossesse</h3>
       <div class="chart-container">
-        <canvas id="consultationsChart"></canvas>
+        <canvas id="trimestreChart"></canvas>
       </div>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-header">
-        <h3>🎯 Répartition des Patientes</h3>
-      </div>
-      <div class="chart-container">
-        <canvas id="statusChart"></canvas>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-color legend-green"></span>
+          <span class="legend-text">CPN Réalisées</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color legend-red"></span>
+          <span class="legend-text">CPN Manquées</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Section Tableaux -->
-  <div class="tables-section">
-    <!-- Tableau des patientes -->
-    <div class="table-card">
-      <div class="table-header">
-        <h3>👥 Patientes Récentes</h3>
-        <div class="table-filters">
-          <select class="filter-select-small" [(ngModel)]="selectedStatut" (change)="filterByStatut(selectedStatut)">
-            <option value="all">Tous les statuts</option>
-            <option value="prenatale">Prénatale</option>
-            <option value="postnatale">Postnatale</option>
-          </select>
-        </div>
-      </div>
-      <div class="table-container">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nom Complet</th>
-              <th>Âge</th>
-              <th>Statut</th>
-              <th>Date Inscription</th>
-              <th>Consultations</th>
-              <th>Prochain RDV</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let patiente of patientes.slice(0, 15)">
-              <td>#{{ patiente.id }}</td>
-              <td class="patient-name">
-                <div class="avatar">{{ patiente.prenom.charAt(0) }}{{ patiente.nom.charAt(0) }}</div>
-                {{ patiente.prenom }} {{ patiente.nom }}
-              </td>
-              <td>{{ patiente.age }} ans</td>
-              <td>
-                <span class="badge" [ngClass]="getStatutClass(patiente.statut)">
-                  {{ patiente.statut === 'prenatale' ? 'Prénatale' : 'Postnatale' }}
-                </span>
-              </td>
-              <td>{{ formatDate(patiente.dateInscription) }}</td>
-              <td>
-                <span class="consultation-count">{{ patiente.nombreConsultations }}</span>
-              </td>
-              <td>
-                <span *ngIf="patiente.prochainRDV" class="rdv-date">
-                  {{ formatDate(patiente.prochainRDV) }}
-                </span>
-                <span *ngIf="!patiente.prochainRDV" class="no-rdv">-</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="table-footer">
-        <span>Affichage de 15 sur {{ patientes.length }} patientes</span>
-        <button class="btn-link">Voir tout →</button>
-      </div>
-    </div>
-
-    <!-- Tableau des consultations -->
-    <div class="table-card">
-      <div class="table-header">
-        <h3>📋 Consultations Récentes</h3>
-      </div>
-      <div class="table-container">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Patiente</th>
-              <th>Médecin</th>
-              <th>Type</th>
-              <th>Statut</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let consultation of consultations.slice(0, 10)">
-              <td>{{ formatDate(consultation.date) }}</td>
-              <td class="patient-name-simple">{{ consultation.patiente }}</td>
-              <td>{{ consultation.medecin }}</td>
-              <td>
-                <span class="type-badge">{{ consultation.type }}</span>
-              </td>
-              <td>
-                <span class="badge" [ngClass]="getConsultationStatutClass(consultation.statut)">
-                  {{ consultation.statut === 'completee' ? 'Complétée' : 
-                     consultation.statut === 'annulee' ? 'Annulée' : 'En attente' }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="table-footer">
-        <span>Affichage de 10 sur {{ consultations.length }} consultations</span>
-        <button class="btn-link">Voir tout →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Statistiques supplémentaires -->
-  <div class="additional-stats">
-    <div class="stat-box">
-      <div class="stat-box-header">
-        <span class="stat-box-icon">🏥</span>
-        <h4>Performance Globale</h4>
-      </div>
-      <div class="stat-box-content">
-        <div class="progress-item">
-          <div class="progress-label">
-            <span>Taux de présence</span>
-            <strong>89%</strong>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: 89%;"></div>
-          </div>
-        </div>
-        <div class="progress-item">
-          <div class="progress-label">
-            <span>Satisfaction patientes</span>
-            <strong>95%</strong>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: 95%; background: #4CAF50;"></div>
-          </div>
-        </div>
-        <div class="progress-item">
-          <div class="progress-label">
-            <span>Suivi régulier</span>
-            <strong>87%</strong>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: 87%; background: #FF9800;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="stat-box">
-      <div class="stat-box-header">
-        <span class="stat-box-icon">⏰</span>
-        <h4>Activité Récente</h4>
-      </div>
-      <div class="stat-box-content">
-        <div class="activity-item">
-          <div class="activity-dot" style="background: #4CAF50;"></div>
-          <div class="activity-content">
-            <p><strong>Nouvel accouchement</strong></p>
-            <span class="activity-time">Il y a 2 heures</span>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background: #2196F3;"></div>
-          <div class="activity-content">
-            <p><strong>12 nouvelles consultations</strong></p>
-            <span class="activity-time">Aujourd'hui</span>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background: #E91E63;"></div>
-          <div class="activity-content">
-            <p><strong>5 nouvelles inscriptions</strong></p>
-            <span class="activity-time">Cette semaine</span>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background: #FF9800;"></div>
-          <div class="activity-content">
-            <p><strong>3 rappels de vaccination</strong></p>
-            <span class="activity-time">À venir</span>
-          </div>
-        </div>
-      </div>
+  <!-- Tableau mensuel -->
+  <div class="table-card">
+    <h3 class="table-title">Détails des consultations par mois ({{ selectedYear }})</h3>
+    <div class="table-container">
+      <table class="monthly-table">
+        <thead>
+          <tr>
+            <th>Mois</th>
+            <th>CPN Réalisées</th>
+            <th>CPN Manquées</th>
+            <th>CPON Réalisées</th>
+            <th>CPON Manquées</th>
+            <th>Taux de réussite</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let month of monthlyData">
+            <td class="month-name">{{ month.nom }}</td>
+            <td>{{ month.cpnRealisees }}</td>
+            <td>{{ month.cpnManquees }}</td>
+            <td>{{ month.cponRealisees }}</td>
+            <td>{{ month.cponManquees }}</td>
+            <td class="success-rate">{{ month.tauxReussite }}%</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

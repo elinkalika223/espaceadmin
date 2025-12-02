@@ -1,7 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { AuthService, User } from '../../service/auth.service';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -10,9 +12,11 @@ import { AuthService, User } from '../../service/auth.service';
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
-export class Header implements OnInit {
+export class Header implements OnInit, OnDestroy {
   @Input() currentPage: string = 'dashboard';
   currentUser: User | null = null;
+  private routerSubscription?: Subscription;
+  pageTitle: string = 'Dashboard';
 
   constructor(
     public authService: AuthService,
@@ -27,18 +31,56 @@ export class Header implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
+
+    // Écouter les changements de route pour détecter automatiquement la page
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        const url = event.urlAfterRedirects || event.url;
+        this.updateCurrentPageFromRoute(url);
+      });
+
+    // Définir la page initiale
+    this.updateCurrentPageFromRoute(this.router.url);
+  }
+
+  ngOnDestroy() {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  updateCurrentPageFromRoute(url: string): void {
+    if (url.includes('/dashboard')) {
+      this.currentPage = 'dashboard';
+    } else if (url.includes('/patients')) {
+      this.currentPage = 'patients';
+    } else if (url.includes('/professionals')) {
+      this.currentPage = 'professionals';
+    } else if (url.includes('/content')) {
+      this.currentPage = 'content';
+    } else if (url.includes('/reports')) {
+      this.currentPage = 'reports';
+    } else if (url.includes('/admins')) {
+      this.currentPage = 'admins';
+    } else {
+      this.currentPage = 'dashboard';
+    }
+    // Mettre à jour le titre
+    this.pageTitle = this.getPageTitle();
   }
 
   getPageTitle(): string {
     const titles: { [key: string]: string } = {
       'dashboard': 'Dashboard',
-      'patients': 'Gestion des Patient(e)s',
-      'professionals': 'Gestion des Professionnels',
-      'content': 'Gestion du Contenu',
-      'reports': 'Rapports et Statistiques',
-      'admins': 'Gestion des Administrateurs'
+      'patients': 'Patient(e)s',
+      'professionals': 'Professionnels',
+      'content': 'Contenu',
+      'reports': 'Rapports CPN/CPON',
+      'admins': 'Administrateurs'
     };
-    return titles[this.currentPage] || 'Dashboard';
+    const title = titles[this.currentPage];
+    return title || 'Dashboard';
   }
 
   getUserDisplayName(): string {

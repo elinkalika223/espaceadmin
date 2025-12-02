@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Content } from '../../model/contentmodel';
 import { ConseilService } from '../../service/conseil.service';
 import { ModalService } from '../../service/modalservice';
+import { ContentModal } from '../Modal/content-modal/content-modal';
 
 interface SelectOption {
   value: string;
@@ -13,7 +14,7 @@ interface SelectOption {
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ContentModal],
   templateUrl: './content.html',
   styleUrls: ['./content.css']
 })
@@ -255,6 +256,10 @@ export class ContentC implements OnInit {
   openAddContentModal(): void {
     this.modalService.openContentModal();
     console.log('Ouvrir modal d\'ajout de contenu');
+  }
+
+  onContentCreated(): void {
+    this.loadContents();
   }
 
   viewContent(content: Content): void {
